@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Análise de Coleção — O Perfumista</title>
   <meta name="description" content="Descubra os 3 perfumes certos para completar sua coleção. Análise personalizada com I.A. especializada em perfumaria masculina.">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -214,7 +215,25 @@
     .footer { text-align: center; padding: 1.8rem; border-top: 1px solid var(--gray-light); color: var(--gray-mid); font-size: .82rem; }
     .footer a { color: var(--orange); text-decoration: none; }
 
-    @media (max-width: 560px) {
+    /* Gráfico */
+    .chart-card { background: white; border: 2px solid var(--gray-light); border-left: 6px solid var(--orange); border-radius: 12px; padding: 2rem 2.2rem; margin-bottom: 2rem; }
+    .chart-title { font-size: .78rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: 1.2rem; }
+    .chart-wrap { display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .chart-canvas-wrap { width: 200px; height: 200px; flex-shrink: 0; }
+    .chart-legend { display: flex; flex-direction: column; gap: .5rem; }
+    .legend-item { display: flex; align-items: center; gap: .6rem; font-size: .85rem; color: var(--charcoal); }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .legend-val { font-weight: 700; color: var(--black); margin-left: auto; padding-left: .8rem; }
+
+    /* Bullet points diagnóstico */
+    .diag-bullets { list-style: none; display: grid; gap: .7rem; }
+    .diag-bullet { display: flex; align-items: flex-start; gap: .8rem; font-size: .97rem; color: var(--charcoal); line-height: 1.6; }
+    .diag-bullet::before { content: '◆'; color: var(--orange); font-size: .6rem; flex-shrink: 0; margin-top: .45rem; }
+
+    @media (max-width: 500px) {
+      .chart-canvas-wrap { width: 160px; height: 160px; }
+      .chart-wrap { gap: 1.2rem; }
+    }
       .opt-grid { grid-template-columns: 1fr 1fr; }
       .social-row { grid-template-columns: 1fr; }
       .sug-card { grid-template-columns: 40px 1fr; gap: .9rem; }
@@ -288,7 +307,7 @@
            ondrop="handleDrop(event)">
         <input type="file" id="file-input" accept=".pdf,.txt,.doc,.docx,.pages"
                onchange="handleFile(this.files[0])">
-        <span class="upload-icon">📎</span>
+        <span class="upload-icon">📂</span>
         <span class="upload-label">Clique para anexar ou arraste o arquivo</span>
         <span class="upload-sub">PDF, Word, TXT, Notes — a I.A. extrai os perfumes automaticamente</span>
         <div class="upload-status" id="upload-status"></div>
@@ -362,7 +381,7 @@
       <input type="checkbox" id="lgpd-check" onchange="toggleSubmit()">
       <div class="lgpd-text">
         <strong>Consentimento de uso de dados (LGPD)</strong><br>
-        Concordo que meu Instagram, TikTok, coleção de perfumes e sugestões geradas sejam armazenados por Victor Guerise para fins de análise e melhoria do serviço. Os dados não serão compartilhados com terceiros. Você pode solicitar a exclusão a qualquer momento pelo e-mail <a href="mailto:contato@victorperfumes.com">contato@victorperfumes.com</a>.
+        Concordo que meu Instagram, TikTok, coleção de perfumes e sugestões geradas sejam armazenados por Victor Guerise para fins de análise e melhoria do serviço. Os dados não serão compartilhados com terceiros. Você pode solicitar a exclusão a qualquer momento pelo e-mail <a href="mailto:vguerise@gmail.com">vguerise@gmail.com</a>.
       </div>
     </div>
 
@@ -394,6 +413,17 @@
       <p id="result-sub"></p>
     </div>
 
+    <!-- Gráfico pizza -->
+    <div class="chart-card" id="chart-card" style="display:none">
+      <div class="chart-title">📊 Distribuição por Família Olfativa</div>
+      <div class="chart-wrap">
+        <div class="chart-canvas-wrap">
+          <canvas id="pizza-chart"></canvas>
+        </div>
+        <div class="chart-legend" id="chart-legend"></div>
+      </div>
+    </div>
+
     <div class="diag-card">
       <div class="diag-title">📊 Diagnóstico da Sua Coleção</div>
       <div class="diag-text" id="diag-text"></div>
@@ -423,7 +453,7 @@
   <a href="https://vguerise.github.io/pv-curso-pratico-da-perfumaria/" target="_blank">Victor Guerise</a>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // ── STATE ──
   let colecao = [];
   let budget = '';
@@ -723,9 +753,24 @@ FORMATO DE RESPOSTA — JSON PURO SEM MARKDOWN:
   }
 
   // ── RENDER RESULTADO ──
+  let pizzaChartInstance = null;
+
+  const FAMILIA_CORES = {
+    'Fresco/Cítrico':      '#F59E0B',
+    'Aromático/Verde':     '#10B981',
+    'Doce/Gourmand':       '#EC4899',
+    'Amadeirado':          '#92400E',
+    'Especiado/Oriental':  '#DC2626',
+    'Aquático/Mineral':    '#3B82F6',
+    'Talco/Fougère':       '#8B5CF6',
+    'Floral':              '#F472B6',
+    'Frutado':             '#EF4444',
+  };
+
   function renderResultado(data, social) {
     document.getElementById('loading-section').classList.remove('show');
 
+    // ── Diagnóstico em bullet points ──
     const diagText = data.diagnostico ||
       (data.analise_colecao
         ? `Família dominante: ${data.analise_colecao.familia_dominante||'—'}. Lacunas: ${(data.analise_colecao.top3_faltando||[]).join(', ')}.`
@@ -733,8 +778,82 @@ FORMATO DE RESPOSTA — JSON PURO SEM MARKDOWN:
 
     document.getElementById('result-sub').textContent =
       `${colecao.length} perfume${colecao.length>1?'s':''} analisado${colecao.length>1?'s':''}`;
-    document.getElementById('diag-text').textContent = diagText;
 
+    // Converte parágrafo em bullets — divide por frases
+    const diagEl = document.getElementById('diag-text');
+    const frases = diagText
+      .split(/(?<=[.!?])\s+/)
+      .map(f => f.trim())
+      .filter(f => f.length > 4);
+
+    if (frases.length > 1) {
+      const ul = document.createElement('ul');
+      ul.className = 'diag-bullets';
+      frases.forEach(f => {
+        const li = document.createElement('li');
+        li.className = 'diag-bullet';
+        li.textContent = f;
+        ul.appendChild(li);
+      });
+      diagEl.innerHTML = '';
+      diagEl.appendChild(ul);
+    } else {
+      diagEl.textContent = diagText;
+    }
+
+    // ── Gráfico pizza ──
+    const familias = data.analise_colecao?.perfumes_por_familia;
+    if (familias) {
+      const labels = Object.keys(familias).filter(k => familias[k] > 0);
+      const valores = labels.map(k => familias[k]);
+      const cores = labels.map(k => FAMILIA_CORES[k] || '#E85D04');
+
+      document.getElementById('chart-card').style.display = 'block';
+
+      if (pizzaChartInstance) pizzaChartInstance.destroy();
+
+      pizzaChartInstance = new Chart(document.getElementById('pizza-chart'), {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data: valores,
+            backgroundColor: cores,
+            borderWidth: 2,
+            borderColor: '#fff',
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          cutout: '55%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${ctx.label}: ${ctx.raw} perfume${ctx.raw>1?'s':''}`
+              }
+            }
+          }
+        }
+      });
+
+      // Legenda customizada
+      const legendEl = document.getElementById('chart-legend');
+      legendEl.innerHTML = '';
+      labels.forEach((l, i) => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+          <span class="legend-dot" style="background:${cores[i]}"></span>
+          <span>${l}</span>
+          <span class="legend-val">${valores[i]}</span>`;
+        legendEl.appendChild(item);
+      });
+    }
+
+    // ── Sugestões ──
     const grid = document.getElementById('sug-cards');
     grid.innerHTML = '';
     (data.recomendacoes || []).forEach((r, i) => {
@@ -754,7 +873,6 @@ FORMATO DE RESPOSTA — JSON PURO SEM MARKDOWN:
       grid.appendChild(card);
     });
 
-    // Salvar no Supabase (não bloqueia o render)
     salvarAnalise(data, social).catch(e => console.warn('Supabase save failed:', e));
 
     document.getElementById('result-section').classList.add('show');
@@ -804,12 +922,7 @@ FORMATO DE RESPOSTA — JSON PURO SEM MARKDOWN:
     document.getElementById('upload-status').textContent = '';
     document.getElementById('upload-status').className = 'upload-status';
     document.getElementById('file-input').value = '';
-    document.getElementById('result-section').classList.remove('show');
-    document.getElementById('form-section').style.display = 'block';
-    document.getElementById('error-msg').classList.remove('show');
-    atualizarSteps();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-</script>
-</body>
-</html>
+    document.getElementById('chart-card').style.display = 'none';
+    if (pizzaChartInstance) { pizzaChartInstance.destroy(); pizzaChartInstance = null; }
+    document.getElementById('chart-legend').innerHTML = '';
+    document.getElementById('result-section').classList.
