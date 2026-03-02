@@ -2,1267 +2,1243 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Análise de Coleção — O Perfumista</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>O Perfumista</title>
+  <meta name="theme-color" content="#111111">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="O Perfumista">
+  <link rel="manifest" id="pwa-manifest">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --orange:#E85D04;--orange-light:#F48C06;--orange-dark:#C14B00;
-  --orange-muted:rgba(232,93,4,.10);--black:#111;--charcoal:#2D2D2D;
-  --gray-mid:#777;--gray-light:#E8E8E8;--white:#FFF;--off-white:#F8F8F8;
-  --success:#2A9D5C;--danger:#D62828;
+  --or:#E85D04;--ord:#C14B00;--orm:rgba(232,93,4,.12);--org:rgba(232,93,4,.28);
+  --bk:#0E0E0E;--s1:#181818;--s2:#222;--s3:#2C2C2C;
+  --bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.14);
+  --tx:#F0F0F0;--tx2:rgba(240,240,240,.55);--tx3:rgba(240,240,240,.28);
+  --ok:#2ECC71;--er:#E74C3C;--wn:#F59E0B;
+  --sw:256px;--bn:64px;--sb:env(safe-area-inset-bottom,0px);
 }
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--white);color:var(--black);line-height:1.7;overflow-x:hidden}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bk);color:var(--tx);line-height:1.6}
 h1,h2,h3{font-family:'Montserrat',sans-serif;line-height:1.2}
-.container{max-width:860px;margin:0 auto;padding:0 1.5rem}
-.hidden{display:none!important}
+.h{display:none!important}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 
-/* ── AUTH OVERLAY ── */
-.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
-.auth-box{background:white;border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:420px;position:relative}
-.auth-logo{font-family:'Montserrat',sans-serif;font-size:1.1rem;font-weight:900;color:var(--orange);text-align:center;margin-bottom:.3rem}
-.auth-title{font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:.3rem}
-.auth-sub{font-size:.88rem;color:var(--gray-mid);text-align:center;margin-bottom:1.8rem}
-.auth-field{margin-bottom:1rem}
-.auth-field label{display:block;font-size:.82rem;font-weight:700;color:var(--black);margin-bottom:.4rem}
-.auth-field input{width:100%;border:2px solid var(--gray-light);border-radius:8px;padding:.85rem 1rem;font-family:'DM Sans',sans-serif;font-size:.97rem;outline:none;transition:border-color .2s}
-.auth-field input:focus{border-color:var(--orange)}
-.auth-msg{font-size:.82rem;padding:.7rem 1rem;border-radius:8px;margin-bottom:1rem;display:none}
-.auth-msg.err{background:rgba(214,40,40,.08);border:1.5px solid rgba(214,40,40,.3);color:var(--danger);display:block}
-.auth-msg.ok{background:rgba(42,157,92,.08);border:1.5px solid rgba(42,157,92,.3);color:var(--success);display:block}
-.btn-auth{width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:1rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:.9rem}
-.btn-auth:hover{background:var(--orange-dark)}
-.btn-auth:disabled{opacity:.45;cursor:not-allowed}
-.auth-toggle{text-align:center;font-size:.85rem;color:var(--gray-mid)}
-.auth-toggle a{color:var(--orange);cursor:pointer;font-weight:600;text-decoration:none}
+/* ══ AUTH ══ */
+.ao{position:fixed;inset:0;background:var(--bk);z-index:2000;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.ab{width:100%;max-width:390px}
+.alo{font-family:'Montserrat',sans-serif;font-weight:900;font-size:.9rem;color:var(--or);letter-spacing:2px;text-transform:uppercase;margin-bottom:2.2rem;display:flex;align-items:center;gap:.55rem}
+.alo::before{content:'';width:24px;height:24px;background:var(--or);border-radius:6px;flex-shrink:0}
+.ah{font-size:clamp(1.7rem,5vw,2.2rem);font-weight:900;margin-bottom:.35rem}
+.as2{color:var(--tx2);font-size:.88rem;margin-bottom:1.8rem}
+.af{margin-bottom:.95rem}
+.af label{display:block;font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx2);margin-bottom:.42rem}
+.afinp{width:100%;background:var(--s1);border:1.5px solid var(--bd);border-radius:10px;padding:.88rem 1rem;font-family:'DM Sans',sans-serif;font-size:.94rem;color:var(--tx);outline:none;transition:border-color .2s}
+.afinp:focus{border-color:var(--or)}.afinp::placeholder{color:var(--tx3)}
+.amsg{font-size:.8rem;padding:.68rem .95rem;border-radius:8px;margin-bottom:.9rem;display:none}
+.amsg.e{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--er);display:block}
+.amsg.o{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--ok);display:block}
+.bauth{width:100%;background:var(--or);color:#fff;border:none;border-radius:10px;padding:1rem;font-family:'DM Sans',sans-serif;font-size:.97rem;font-weight:700;cursor:pointer;transition:background .2s;margin-bottom:.95rem}
+.bauth:hover{background:var(--ord)}.bauth:disabled{opacity:.4;cursor:not-allowed}
+.atog{text-align:center;font-size:.83rem;color:var(--tx2)}
+.atog a{color:var(--or);cursor:pointer;font-weight:600}
 
-/* ── TOPBAR ── */
-.topbar{background:var(--black);padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
-.topbar-brand{font-family:'Montserrat',sans-serif;font-weight:900;color:var(--orange);font-size:.95rem}
-.topbar-user{display:flex;align-items:center;gap:1rem}
-.topbar-email{font-size:.8rem;color:rgba(255,255,255,.55)}
-.btn-logout{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;padding:.35rem .9rem;border-radius:20px;cursor:pointer;transition:all .2s}
-.btn-logout:hover{border-color:var(--orange);color:var(--orange)}
-
-/* ── HERO ── */
-.hero{background:var(--black);text-align:center;padding:3rem 1.5rem 3rem;position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,93,4,.18) 0%,transparent 70%);pointer-events:none}
-.hero-inner{position:relative;z-index:2;max-width:740px;margin:0 auto}
-.hero h1{font-size:clamp(1.7rem,4.5vw,2.7rem);font-weight:900;color:var(--white);line-height:1.25;margin-bottom:1rem}
-.hero h1 .hl{color:var(--orange)}
-.hero p{font-size:clamp(.95rem,2vw,1.1rem);color:rgba(255,255,255,.6);max-width:560px;margin:0 auto}
-.divider{height:4px;background:linear-gradient(90deg,transparent,var(--orange),transparent)}
-
-/* ── FORM ── */
-.form-section{background:var(--off-white);padding:3rem 0 4rem}
-.section-label{display:block;text-align:center;font-size:.72rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:.5rem}
-.section-title{font-size:clamp(1.5rem,3.5vw,2rem);text-align:center;margin-bottom:2.2rem;color:var(--black)}
-.section-title em{font-style:normal;color:var(--orange)}
-
-/* Steps */
-.steps-bar{display:flex;align-items:center;justify-content:center;margin-bottom:2.2rem}
-.step-item{display:flex;flex-direction:column;align-items:center;gap:.4rem}
-.step-circle{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--gray-light);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:.82rem;font-weight:800;color:var(--gray-mid);background:white;transition:all .3s}
-.step-circle.active{border-color:var(--orange);color:var(--orange)}
-.step-circle.done{border-color:var(--success);background:var(--success);color:white}
-.step-label{font-size:.65rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gray-mid);transition:color .3s}
-.step-label.active{color:var(--orange)}
-.step-label.done{color:var(--success)}
-.step-connector{height:2px;width:48px;background:var(--gray-light);margin:0 4px 18px;transition:background .3s}
-.step-connector.done{background:var(--success)}
-
-/* Cards */
-.form-card{background:white;border:2px solid var(--gray-light);border-left:6px solid var(--orange);border-radius:12px;padding:1.8rem 2rem;margin-bottom:1.2rem;transition:box-shadow .2s}
-.form-card:focus-within{box-shadow:0 4px 22px rgba(232,93,4,.12)}
-.form-card-title{font-size:1.05rem;font-weight:800;color:var(--black);margin-bottom:.25rem}
-.form-card-sub{font-size:.88rem;color:var(--gray-mid);margin-bottom:1.2rem}
-
-/* Input */
-.input-row{display:flex;gap:.7rem}
-input[type="text"]{flex:1;border:2px solid var(--gray-light);border-radius:8px;padding:.82rem 1rem;font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--black);outline:none;transition:border-color .2s;background:white}
-input[type="text"]:focus{border-color:var(--orange)}
-input[type="text"]::placeholder{color:var(--gray-mid)}
-.btn-add{background:var(--orange);color:white;border:none;border-radius:8px;padding:.82rem 1.3rem;font-size:1.4rem;font-weight:900;cursor:pointer;transition:all .2s;line-height:1}
-.btn-add:hover{background:var(--orange-dark);transform:scale(1.05)}
-
-/* Concentração */
-.conc-row{margin-top:.6rem}
-select.conc-select{width:100%;border:2px solid var(--gray-light);border-radius:8px;padding:.82rem 2.4rem .82rem 1rem;font-family:'DM Sans',sans-serif;font-size:.93rem;color:var(--black);outline:none;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23777' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 1rem center;appearance:none;cursor:pointer;transition:border-color .2s}
-select.conc-select:focus{border-color:var(--orange)}
-
-/* OR divider */
-.or-divider{display:flex;align-items:center;gap:1rem;margin:1.1rem 0}
-.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--gray-light)}
-.or-divider span{font-size:.75rem;font-weight:700;color:var(--gray-mid);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
-
-/* Upload */
-.upload-area{border:2px dashed var(--gray-light);border-radius:10px;padding:1.1rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--off-white);position:relative}
-.upload-area:hover,.upload-area.dragover{border-color:var(--orange);background:var(--orange-muted)}
-.upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-icon{font-size:1.5rem;display:block;margin-bottom:.3rem}
-.upload-label{font-size:.85rem;font-weight:600;color:var(--charcoal);display:block;margin-bottom:.15rem}
-.upload-sub{font-size:.73rem;color:var(--gray-mid)}
-.upload-status{font-size:.8rem;font-weight:600;margin-top:.5rem;min-height:1.1em}
-.upload-status.ok{color:var(--success)}
-.upload-status.err{color:var(--danger)}
-.upload-status.loading{color:var(--orange)}
-
-/* Tags */
-.tags-area{display:flex;flex-wrap:wrap;gap:.45rem;min-height:34px;margin-top:.9rem}
-.tag{background:var(--orange-muted);border:1.5px solid rgba(232,93,4,.3);color:var(--orange-dark);padding:.38rem .85rem;border-radius:20px;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:.55rem;animation:tagIn .2s ease}
-@keyframes tagIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
-.tag-x{cursor:pointer;opacity:.5;font-size:1rem;line-height:1;transition:opacity .2s}
-.tag-x:hover{opacity:1;color:var(--danger)}
-.tags-empty{font-size:.82rem;color:var(--gray-mid);font-style:italic;margin-top:.3rem}
-.count-line{font-size:.78rem;color:var(--gray-mid);margin-top:.6rem;text-align:right}
-.count-line span{color:var(--orange);font-weight:700}
-.cloud-badge{font-size:.72rem;color:var(--success);font-weight:600;margin-top:.35rem;display:flex;align-items:center;gap:.3rem}
-
-/* Options */
-.opt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem}
-.opt-grid.two{grid-template-columns:repeat(2,1fr)}
-.opt{border:2px solid var(--gray-light);border-radius:10px;padding:.9rem .7rem;text-align:center;cursor:pointer;background:white;transition:all .2s}
-.opt:hover{border-color:var(--orange)}
-.opt.sel{border-color:var(--orange);background:var(--orange-muted)}
-.opt .v{font-family:'Montserrat',sans-serif;font-weight:800;font-size:.88rem;color:var(--black);display:block}
-.opt .l{font-size:.7rem;color:var(--gray-mid);margin-top:.15rem;display:block}
-.opt.sel .v{color:var(--orange)}
-.opt.sel .l{color:var(--orange-dark)}
-.opt .emo{font-size:1.4rem;display:block;margin-bottom:.25rem}
-
-/* Social */
-.social-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-.social-field{position:relative}
-.social-prefix{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);font-weight:700;color:var(--gray-mid);font-size:.92rem;pointer-events:none}
-.social-field input{padding-left:1.8rem;width:100%}
-
-/* LGPD */
-.lgpd-box{background:white;border:2px solid var(--gray-light);border-radius:10px;padding:1.1rem 1.4rem;margin-bottom:1.1rem;display:flex;align-items:flex-start;gap:.9rem}
-.lgpd-box input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;margin-top:.2rem;accent-color:var(--orange);cursor:pointer}
-.lgpd-text{font-size:.82rem;color:var(--charcoal);line-height:1.6}
-.lgpd-text strong{color:var(--black)}
-.lgpd-text a{color:var(--orange);text-decoration:none}
-
-/* Error / Submit */
-.error-msg{background:rgba(214,40,40,.07);border:1.5px solid rgba(214,40,40,.3);border-radius:8px;padding:.85rem 1.1rem;color:var(--danger);font-size:.88rem;margin-bottom:.9rem;display:none}
-.error-msg.show{display:block}
-.btn-submit{width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:1.15rem 2rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .25s;animation:ctaPulse 2.5s ease-in-out infinite}
-.btn-submit:hover:not(:disabled){background:var(--orange-dark);transform:translateY(-2px);box-shadow:0 10px 35px rgba(232,93,4,.45);animation:none}
-.btn-submit:disabled{opacity:.35;cursor:not-allowed;animation:none;box-shadow:none;transform:none}
-@keyframes ctaPulse{0%,100%{box-shadow:0 0 10px 2px rgba(232,93,4,.4),0 5px 22px rgba(232,93,4,.25)}50%{box-shadow:0 0 28px 7px rgba(232,93,4,.65),0 8px 38px rgba(232,93,4,.45)}}
-
-/* ── LOADING ── */
-.loading-section{display:none;background:var(--off-white);padding:5rem 1.5rem;text-align:center}
-.loading-section.show{display:block}
-.loading-icon{font-size:2.8rem;display:block;animation:spin 2s linear infinite;margin-bottom:1rem}
+/* ══ LOADING ══ */
+.lo{position:fixed;inset:0;background:rgba(14,14,14,.9);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.lo.sh{display:flex}
+.lb{text-align:center}
+.li{font-size:2.2rem;display:block;animation:spin 2s linear infinite;margin-bottom:.85rem}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-title{font-family:'Montserrat',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:.4rem}
-.loading-sub{color:var(--gray-mid);font-size:.92rem}
-.loading-dots{display:inline-flex;gap:.3rem;margin-top:1.3rem}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--orange);animation:bounce .8s ease-in-out infinite}
-.dot:nth-child(2){animation-delay:.15s}
-.dot:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.lt2{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;color:var(--tx);margin-bottom:.22rem}
+.lsb{font-size:.78rem;color:var(--tx2)}
+.dots{display:inline-flex;gap:.26rem;margin-top:.85rem}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--or);animation:bnc .8s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
+@keyframes bnc{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
-/* ── RESULT ── */
-.result-section{display:none;background:var(--off-white);padding:3.5rem 0}
-.result-section.show{display:block}
-.result-header{text-align:center;margin-bottom:2rem}
-.result-header h2{font-size:clamp(1.5rem,3.5vw,2rem);margin-bottom:.4rem}
-.result-header h2 em{font-style:normal;color:var(--orange)}
-.result-header p{color:var(--gray-mid);font-size:.92rem}
+/* ══ APP SHELL ══ */
+.app{display:flex;height:100vh;height:100dvh}
 
-/* Gráfico */
-.chart-card{background:white;border:2px solid var(--gray-light);border-left:6px solid var(--orange);border-radius:12px;padding:1.8rem 2rem;margin-bottom:1.8rem}
-.chart-title{font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:1rem}
-.chart-wrap{display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap}
-.chart-canvas-wrap{width:190px;height:190px;flex-shrink:0}
-.chart-legend{display:flex;flex-direction:column;gap:.45rem}
-.legend-item{display:flex;align-items:center;gap:.55rem;font-size:.82rem;color:var(--charcoal)}
-.legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
-.legend-val{font-weight:700;color:var(--black);margin-left:auto;padding-left:.7rem}
+/* ── SIDEBAR ── */
+.sdbar{width:var(--sw);flex-shrink:0;background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column}
+.sdtop{padding:1.3rem 1rem .9rem;border-bottom:1px solid var(--bd)}
+.brand{display:flex;align-items:center;gap:.65rem;margin-bottom:1.3rem}
+.brand-ic{width:32px;height:32px;background:var(--or);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.brand-nm{font-family:'Montserrat',sans-serif;font-weight:900;font-size:.88rem;color:var(--tx)}
+.brand-tg{font-size:.6rem;color:var(--tx2)}
+.uchip{display:flex;align-items:center;gap:.52rem;background:var(--s2);border-radius:8px;padding:.52rem .72rem}
+.uav{width:26px;height:26px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:.68rem;font-weight:800;color:#fff;flex-shrink:0}
+.uem{font-size:.72rem;color:var(--tx2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.blo{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:.8rem;transition:color .2s;padding:.15rem}
+.blo:hover{color:var(--er)}
+.navlist{padding:.85rem .65rem;flex:1}
+.navit{display:flex;align-items:center;gap:.75rem;padding:.78rem .9rem;border-radius:10px;cursor:pointer;transition:all .2s;margin-bottom:.15rem;border:1.5px solid transparent;user-select:none}
+.navit:hover{background:var(--s2)}
+.navit.ac{background:var(--orm);border-color:rgba(232,93,4,.22)}
+.navic{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.navla{font-size:.84rem;font-weight:600;color:var(--tx2);transition:color .2s}
+.navit.ac .navla{color:var(--or)}
+.navct{margin-left:auto;background:var(--s2);color:var(--tx2);font-size:.67rem;font-weight:700;padding:.12rem .48rem;border-radius:20px;min-width:22px;text-align:center}
+.navit.ac .navct{background:var(--or);color:#fff}
+.sdver{font-size:.64rem;color:var(--tx3);text-align:center;padding:.75rem;border-top:1px solid var(--bd)}
 
-/* Diagnóstico */
-.diag-card{background:white;border:2px solid var(--gray-light);border-left:6px solid var(--orange);border-radius:12px;padding:1.8rem 2rem;margin-bottom:1.8rem}
-.diag-title{font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:.8rem}
-.diag-bullets{list-style:none;display:grid;gap:.65rem}
-.diag-bullet{display:flex;align-items:flex-start;gap:.75rem;font-size:.95rem;color:var(--charcoal);line-height:1.6}
-.diag-bullet::before{content:'◆';color:var(--orange);font-size:.55rem;flex-shrink:0;margin-top:.5rem}
+/* ── MAIN ── */
+.mn{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.tc{flex:1;overflow-y:auto;overflow-x:hidden}
+.tpane{display:none}.tpane.ac{display:block}
 
-/* Sugestões por família */
-.familia-block{margin-bottom:2rem}
-.familia-header{font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:800;color:var(--black);margin-bottom:.9rem;display:flex;align-items:center;gap:.6rem}
-.familia-tag{background:var(--orange);color:white;font-size:.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.25rem .7rem;border-radius:20px}
-.familia-lacuna{font-size:.75rem;color:var(--gray-mid);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-left:auto}
+/* ══ INPUTS GLOBAIS ══ */
+.inp{background:var(--s2);border:1.5px solid var(--bd);border-radius:9px;padding:.75rem .95rem;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--tx);outline:none;transition:border-color .2s;width:100%}
+.inp:focus{border-color:var(--or)}.inp::placeholder{color:var(--tx3)}
+select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .9rem center;padding-right:2.1rem}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:1.4rem;margin-bottom:1.1rem}
+.clabel{font-size:.66rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--or);margin-bottom:.85rem}
+.bprim{background:var(--or);color:#fff;border:none;border-radius:10px;padding:1rem 1.8rem;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .2s}
+.bprim:hover{background:var(--ord)}.bprim:disabled{opacity:.3;cursor:not-allowed}
+.bsec{background:var(--s2);border:1.5px solid var(--bd);border-radius:9px;padding:.68rem 1.1rem;color:var(--tx2);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s}
+.bsec:hover{border-color:var(--or);color:var(--or)}
+.pg-hdr{padding:1.5rem 2rem .9rem;border-bottom:1px solid var(--bd)}
+.pg-hdr h2{font-size:1.2rem;font-weight:900;margin-bottom:.12rem}
+.pg-hdr p{font-size:.79rem;color:var(--tx2)}
+.pg-body{padding:1.2rem 2rem 3rem}
 
-.opcoes-grid{display:grid;gap:.75rem}
-.opcao-card{background:white;border:2px solid var(--gray-light);border-radius:10px;padding:1.2rem 1.5rem;display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:center;transition:all .2s;cursor:default}
-.opcao-card:hover{border-color:rgba(232,93,4,.4);box-shadow:0 4px 16px rgba(232,93,4,.08)}
-.opcao-card.selecionada{border-color:var(--success);background:rgba(42,157,92,.04)}
-.opcao-num{width:32px;height:32px;border-radius:50%;background:var(--off-white);border:2px solid var(--gray-light);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:.8rem;font-weight:800;color:var(--gray-mid);flex-shrink:0;transition:all .2s}
-.opcao-card.selecionada .opcao-num{background:var(--success);border-color:var(--success);color:white}
-.opcao-nome{font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:800;color:var(--black)}
-.opcao-conc{font-size:.72rem;font-weight:600;color:var(--gray-mid)}
-.opcao-motivo{font-size:.85rem;color:var(--charcoal);line-height:1.55;margin-top:.2rem}
-.opcao-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.55rem}
-.opcao-tag{background:var(--orange-muted);border:1px solid rgba(232,93,4,.2);color:var(--orange-dark);padding:.2rem .65rem;border-radius:20px;font-size:.68rem;font-weight:700;text-transform:uppercase}
-.opcao-radio{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--gray-light);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;cursor:pointer}
-.opcao-radio:hover{border-color:var(--orange)}
-.opcao-card.selecionada .opcao-radio{border-color:var(--success);background:var(--success)}
-.opcao-card.selecionada .opcao-radio::after{content:'✓';color:white;font-size:.7rem;font-weight:800}
+/* ══ ABA PERFIL ══ */
+.nivel-hero{background:linear-gradient(135deg,var(--s2) 0%,var(--s1) 100%);border:1px solid var(--bd);border-radius:14px;padding:1.6rem;margin-bottom:1.1rem;position:relative;overflow:hidden}
+.nivel-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,var(--org) 0%,transparent 70%);pointer-events:none}
+.nivel-row{display:flex;align-items:center;gap:1.1rem;margin-bottom:1.1rem}
+.nivel-badge{width:64px;height:64px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;box-shadow:0 0 24px var(--org)}
+.nivel-info{flex:1;min-width:0}
+.nivel-name{font-size:1.1rem;color:var(--tx);font-weight:700}
+.nivel-title{font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900;color:var(--or);line-height:1.1}
+.nivel-sub{font-size:.76rem;color:var(--tx2);margin-top:.15rem}
+.nivel-bar-wrap{margin-bottom:.5rem}
+.nivel-bar-labels{display:flex;justify-content:space-between;font-size:.7rem;color:var(--tx2);margin-bottom:.4rem}
+.nivel-bar-bg{height:7px;background:var(--s3);border-radius:4px;overflow:hidden}
+.nivel-bar-fill{height:100%;background:linear-gradient(90deg,var(--or),var(--ord));border-radius:4px;transition:width .6s ease}
 
-/* Novas sugestões */
-.novas-wrap{text-align:center;margin:1.5rem 0 2rem}
-.btn-novas{background:white;border:2px solid var(--orange);color:var(--orange);font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;padding:.8rem 1.8rem;border-radius:8px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.6rem}
-.btn-novas:hover:not(:disabled){background:var(--orange-muted)}
-.btn-novas:disabled{opacity:.35;cursor:not-allowed}
-.novas-count{font-size:.75rem;color:var(--gray-mid);margin-top:.5rem}
+/* Conquistas */
+.conq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.conq-item{background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:.85rem .6rem;text-align:center;transition:all .3s;position:relative}
+.conq-item.desbloqueada{border-color:rgba(232,93,4,.35);background:var(--orm)}
+.conq-item.desbloqueada .ci-ico{filter:none;transform:scale(1.05)}
+.ci-ico{font-size:1.6rem;display:block;margin-bottom:.35rem;filter:grayscale(1) opacity(.35);transition:all .3s}
+.ci-nm{font-size:.64rem;font-weight:700;color:var(--tx3);line-height:1.3;transition:color .3s}
+.conq-item.desbloqueada .ci-nm{color:var(--or)}
+.conq-selo{position:absolute;top:.3rem;right:.3rem;width:16px;height:16px;background:var(--ok);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:.55rem;color:#fff}
+.conq-item.desbloqueada .conq-selo{display:flex}
 
-/* Upsell */
-.upsell-card{background:var(--black);border-radius:14px;padding:2.2rem 1.8rem;text-align:center;position:relative;overflow:hidden}
-.upsell-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,93,4,.2) 0%,transparent 65%);pointer-events:none}
-.upsell-inner{position:relative;z-index:2}
-.upsell-badge{display:inline-block;background:var(--orange);color:white;font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:.3rem .9rem;border-radius:20px;margin-bottom:1rem}
-.upsell-title{font-size:clamp(1.1rem,2.5vw,1.45rem);color:white;margin-bottom:.8rem}
-.upsell-title em{font-style:normal;color:var(--orange)}
-.upsell-text{color:rgba(255,255,255,.6);font-size:.92rem;line-height:1.7;margin-bottom:1.6rem}
-.btn-upsell{display:inline-block;background:var(--orange);color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;text-transform:uppercase;letter-spacing:1px;padding:1rem 2.2rem;border-radius:8px;text-decoration:none;transition:all .25s;animation:ctaPulse 2.5s ease-in-out infinite}
-.btn-upsell:hover{background:var(--orange-dark);transform:translateY(-2px);animation:none}
+/* Stories card */
+.stories-wrap{text-align:center}
+.stories-preview{width:100%;max-width:280px;margin:0 auto 1rem;display:block;border-radius:16px;border:1px solid var(--bd)}
+.bshare{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;border:none;border-radius:10px;padding:.85rem 1.8rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:opacity .2s;display:inline-flex;align-items:center;gap:.5rem}
+.bshare:hover{opacity:.88}
 
-.btn-reset{display:block;margin:1.3rem auto 0;background:none;border:none;color:var(--gray-mid);font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:color .2s}
-.btn-reset:hover{color:var(--orange)}
+/* Formulário perfil */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
+.form-grid.full{grid-template-columns:1fr}
+.form-field label{display:block;font-size:.72rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--tx2);margin-bottom:.4rem}
+.bsalvar{background:var(--or);color:#fff;border:none;border-radius:10px;padding:.88rem 1.6rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:.5rem}
+.bsalvar:hover{background:var(--ord)}
+.salvo-msg{font-size:.78rem;color:var(--ok);margin-left:.8rem;display:none}
+.salvo-msg.sh{display:inline}
 
-/* ── NÃO CLASSIFICADOS ── */
-.naoclass-card{background:white;border:2px solid var(--gray-light);border-left:6px solid #F59E0B;border-radius:12px;margin-bottom:1.8rem;overflow:hidden}
-.naoclass-header{padding:1.2rem 1.8rem;cursor:pointer;display:flex;align-items:center;gap:.75rem;user-select:none;transition:background .2s}
-.naoclass-header:hover{background:var(--off-white)}
-.naoclass-icon{font-size:1rem}
-.naoclass-titulo{font-family:'Montserrat',sans-serif;font-size:.9rem;font-weight:800;color:#92400E;flex:1}
-.naoclass-badge{background:#FEF3C7;border:1.5px solid #F59E0B;color:#92400E;font-size:.72rem;font-weight:700;padding:.2rem .65rem;border-radius:20px}
-.naoclass-chevron{color:#F59E0B;font-size:.8rem;transition:transform .25s;font-weight:700}
-.naoclass-chevron.open{transform:rotate(180deg)}
-.naoclass-body{display:none;padding:0 1.8rem 1.4rem;border-top:1px solid var(--gray-light)}
-.naoclass-body.open{display:block}
-.naoclass-sub{font-size:.82rem;color:var(--gray-mid);margin:.9rem 0 1rem;line-height:1.6}
-.naoclass-lista{display:grid;gap:.55rem;max-height:360px;overflow-y:auto;padding-right:.3rem}
-.naoclass-lista::-webkit-scrollbar{width:4px}
-.naoclass-lista::-webkit-scrollbar-track{background:var(--off-white);border-radius:2px}
-.naoclass-lista::-webkit-scrollbar-thumb{background:var(--gray-light);border-radius:2px}
-.naoclass-item{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.7rem;padding:.55rem .8rem;background:var(--off-white);border-radius:8px}
-.naoclass-nome{font-size:.85rem;color:var(--charcoal);font-weight:500}
-.naoclass-select{border:1.5px solid var(--gray-light);border-radius:6px;padding:.4rem .5rem;font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--black);background:white;outline:none;cursor:pointer;transition:border-color .2s;min-width:155px}
-.naoclass-select:focus{border-color:var(--orange)}
-.naoclass-select.classificado{border-color:var(--success);background:rgba(42,157,92,.05)}
-.btn-atualizar{display:flex;align-items:center;gap:.5rem;margin-top:1rem;background:var(--orange);color:white;border:none;border-radius:8px;padding:.75rem 1.4rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s}
-.btn-atualizar:hover{background:var(--orange-dark)}
-.btn-atualizar:disabled{opacity:.4;cursor:not-allowed}
-.naoclass-progress{font-size:.78rem;color:var(--gray-mid);margin-top:.5rem}
-.naoclass-progress span{color:var(--success);font-weight:700}
+/* ══ ABA COLEÇÃO ══ */
+.ctls{display:flex;gap:.55rem;margin-top:.85rem;flex-wrap:wrap}
+.iw{display:flex;gap:.5rem;flex:1;min-width:190px}
+.bai{background:var(--or);border:none;border-radius:9px;padding:.75rem 1rem;color:#fff;font-size:1.15rem;font-weight:900;cursor:pointer;transition:all .2s;flex-shrink:0;line-height:1}
+.bai:hover{background:var(--ord);transform:scale(1.04)}
+.sw2{position:relative;flex:1;min-width:130px}
+.sw2 .sico{position:absolute;left:.78rem;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:.78rem;pointer-events:none}
+.inp.sr{padding-left:2.1rem}
+.dz{border:2px dashed var(--bd);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:.9rem;position:relative}
+.dz:hover,.dz.dg{border-color:var(--or);background:var(--orm)}
+.dz input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dl{font-size:.8rem;color:var(--tx2)}.dl strong{color:var(--tx)}
+.us{font-size:.74rem;font-weight:600;margin-top:.38rem;min-height:1em}
+.us.ok{color:var(--ok)}.us.er{color:var(--er)}.us.ld{color:var(--or)}
+.cst{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.85rem}
+.spc{background:var(--s1);border:1px solid var(--bd);border-radius:7px;padding:.38rem .82rem;font-size:.72rem;font-weight:600;color:var(--tx2)}
+.spc span{color:var(--or);font-weight:700}
+.cl2{display:flex;align-items:center;gap:.38rem;font-size:.7rem;color:var(--tx3);margin-bottom:.65rem}
+.cl2.sy{color:var(--ok)}.cl2.sg{color:var(--wn)}
+.plist{display:grid;gap:.4rem}
+.pi{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.65rem;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:.75rem .9rem;transition:all .2s;animation:sli .18s ease}
+@keyframes sli{from{opacity:0;transform:translateX(-5px)}to{opacity:1;transform:translateX(0)}}
+.pi:hover{border-color:rgba(232,93,4,.28);background:var(--s2)}
+.pn{font-size:.87rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmeta{display:flex;gap:.4rem;margin-top:.18rem;flex-wrap:wrap}
+.ppill{font-size:.63rem;font-weight:700;padding:.12rem .5rem;border-radius:20px;background:var(--s2);color:var(--tx3);border:1px solid var(--bd)}
+.ppill.pf{color:var(--fc,var(--tx2));border-color:var(--fc,var(--bd))}
+.brm{background:none;border:none;color:var(--tx3);cursor:pointer;padding:.26rem;border-radius:6px;transition:all .2s;font-size:.85rem;line-height:1}
+.brm:hover{background:rgba(231,76,60,.15);color:var(--er)}
+.es{text-align:center;padding:2.5rem 1rem;color:var(--tx3)}
+.es .ei{font-size:2rem;opacity:.3;margin-bottom:.65rem}
+.es p{font-size:.83rem;line-height:1.7}
 
-/* Footer */
-.footer{text-align:center;padding:1.5rem;border-top:1px solid var(--gray-light);color:var(--gray-mid);font-size:.8rem}
-.footer a{color:var(--orange);text-decoration:none}
+/* ══ ABA ANÁLISE ══ */
+.al2{padding:1.5rem 2rem 4rem;max-width:820px}
+.slabel{font-size:.66rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--or);margin-bottom:.52rem}
+.stitle{font-size:.94rem;font-weight:800;color:var(--tx);margin-bottom:.82rem}
+.sblk{margin-bottom:1.6rem}
+.og{display:grid;gap:.5rem}
+.og.c3{grid-template-columns:repeat(3,1fr)}
+.og.c2{grid-template-columns:repeat(2,1fr)}
+.obt{background:var(--s1);border:1.5px solid var(--bd);border-radius:10px;padding:.82rem .62rem;text-align:center;cursor:pointer;transition:all .2s;user-select:none}
+.obt:hover{border-color:rgba(232,93,4,.38)}
+.obt.sl{border-color:var(--or);background:var(--orm)}
+.obt .ov{font-family:'Montserrat',sans-serif;font-size:.79rem;font-weight:800;color:var(--tx);display:block}
+.obt .ol{font-size:.66rem;color:var(--tx2);margin-top:.1rem;display:block}
+.obt.sl .ov{color:var(--or)}
+.obt .oe{font-size:1.22rem;display:block;margin-bottom:.26rem}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.swrap{position:relative}
+.spfx{position:absolute;left:.82rem;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:.88rem;pointer-events:none;font-weight:600}
+.swrap .inp{padding-left:1.72rem}
+.lgpd{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:.95rem 1.1rem;display:flex;align-items:flex-start;gap:.78rem;margin-bottom:1.15rem}
+.lgpd input[type="checkbox"]{width:16px;height:16px;flex-shrink:0;margin-top:.18rem;accent-color:var(--or);cursor:pointer}
+.lgpdt{font-size:.75rem;color:var(--tx2);line-height:1.65}
+.lgpdt a{color:var(--or)}
+.emsg{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-radius:8px;padding:.68rem .95rem;color:var(--er);font-size:.8rem;margin-bottom:.82rem;display:none}
+.emsg.sh{display:block}
+.bpulse{background:var(--or);color:#fff;border:none;border-radius:10px;padding:1.05rem 2rem;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;width:100%;transition:all .25s;animation:glow 2.5s ease-in-out infinite}
+.bpulse:hover:not(:disabled){background:var(--ord);transform:translateY(-2px);box-shadow:0 12px 40px var(--org);animation:none}
+.bpulse:disabled{opacity:.3;cursor:not-allowed;animation:none;transform:none;box-shadow:none}
+@keyframes glow{0%,100%{box-shadow:0 0 12px 2px var(--org)}50%{box-shadow:0 0 30px 8px rgba(232,93,4,.5)}}
 
-@media(max-width:560px){
-  .opt-grid{grid-template-columns:1fr 1fr}
-  .social-row{grid-template-columns:1fr}
-  .opcao-card{grid-template-columns:auto 1fr}
-  .opcao-radio{display:none}
-  .chart-canvas-wrap{width:160px;height:160px}
-  .step-connector{width:30px}
+/* resultado */
+.rw{display:none}.rw.sh{display:block}
+.rsep{height:1px;background:var(--bd);margin:2rem 0}
+.rh{font-size:1.3rem;font-weight:900;margin-bottom:.28rem}
+.rh em{color:var(--or);font-style:normal}
+.rsub{font-size:.79rem;color:var(--tx2);margin-bottom:1.6rem}
+.cw2{display:flex;align-items:center;justify-content:center;gap:1.7rem;flex-wrap:wrap}
+.ccw{width:170px;height:170px;flex-shrink:0}
+.clg{display:flex;flex-direction:column;gap:.37rem}
+.lr{display:flex;align-items:center;gap:.5rem;font-size:.77rem;color:var(--tx2)}
+.ld{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.lv{font-weight:700;color:var(--tx);margin-left:auto;padding-left:.5rem}
+.nctog{display:flex;align-items:center;gap:.62rem;cursor:pointer;padding:.82rem 1.2rem;border-radius:13px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);margin-bottom:1rem;user-select:none;transition:background .2s}
+.nctog:hover{background:rgba(245,158,11,.1)}
+.nctog .ncl{font-size:.82rem;font-weight:700;color:var(--wn);flex:1}
+.ncbg{background:var(--wn);color:var(--bk);font-size:.65rem;font-weight:800;padding:.17rem .52rem;border-radius:20px}
+.nchv{color:var(--wn);transition:transform .25s;font-size:.7rem;font-weight:700}
+.nchv.op{transform:rotate(180deg)}
+.ncbd{display:none;margin-bottom:1rem}.ncbd.op{display:block}
+.ncsubtt{font-size:.78rem;color:var(--tx2);margin-bottom:.82rem;line-height:1.65}
+.nclist{display:grid;gap:.4rem;max-height:290px;overflow-y:auto}
+.nci{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.62rem;background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:.58rem .82rem}
+.ncn{font-size:.8rem;color:var(--tx)}
+.ncsel{background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:.38rem .48rem;font-family:'DM Sans',sans-serif;font-size:.73rem;color:var(--tx);outline:none;cursor:pointer;min-width:145px;transition:border-color .2s}
+.ncsel:focus{border-color:var(--or)}.ncsel.dn{border-color:var(--ok);color:var(--ok)}
+.ncprog{font-size:.72rem;color:var(--tx2);margin-top:.52rem}
+.ncprog span{color:var(--ok);font-weight:700}
+.batu{display:inline-flex;align-items:center;gap:.42rem;margin-top:.82rem;background:var(--s2);border:1.5px solid var(--bd);border-radius:9px;padding:.62rem 1.15rem;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:700;color:var(--tx2);cursor:pointer;transition:all .2s}
+.batu:hover:not(:disabled){border-color:var(--or);color:var(--or)}.batu:disabled{opacity:.35;cursor:not-allowed}
+.dblist{list-style:none;display:grid;gap:.52rem}
+.dbli{display:flex;gap:.62rem;font-size:.87rem;color:var(--tx2);line-height:1.6}
+.dbli::before{content:'◆';color:var(--or);font-size:.46rem;flex-shrink:0;margin-top:.52rem}
+.fblk{margin-bottom:1.65rem}
+.fblkh{display:flex;align-items:center;gap:.52rem;margin-bottom:.72rem;font-size:.87rem;font-weight:800;color:var(--tx)}
+.fpill{background:var(--or);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.17rem .56rem;border-radius:20px}
+.fhint{font-size:.64rem;color:var(--tx3);margin-left:auto;text-transform:uppercase;letter-spacing:1px}
+.opcg{display:grid;gap:.52rem}
+.oc{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:1rem 1.15rem;display:grid;grid-template-columns:auto 1fr auto;gap:.78rem;align-items:start;cursor:pointer;transition:all .2s}
+.oc:hover{border-color:rgba(232,93,4,.32)}.oc.sl2{border-color:var(--ok);background:rgba(46,204,113,.05)}
+.ocnum{width:28px;height:28px;border-radius:50%;background:var(--s2);border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:800;color:var(--tx2);flex-shrink:0;margin-top:.08rem;transition:all .2s}
+.oc.sl2 .ocnum{background:var(--ok);border-color:var(--ok);color:#fff}
+.ocnm{font-family:'Montserrat',sans-serif;font-size:.85rem;font-weight:800;color:var(--tx)}
+.occ{font-size:.67rem;color:var(--tx3)}
+.ocm{font-size:.79rem;color:var(--tx2);line-height:1.55;margin-top:.2rem}
+.octg{display:flex;flex-wrap:wrap;gap:.26rem;margin-top:.42rem}
+.octg span{background:var(--s2);border:1px solid var(--bd);color:var(--tx3);padding:.14rem .5rem;border-radius:20px;font-size:.62rem;font-weight:600;text-transform:uppercase}
+.ocr{width:16px;height:16px;border-radius:50%;border:2px solid var(--bd);flex-shrink:0;margin-top:.3rem;transition:all .2s}
+.oc:hover .ocr{border-color:var(--or)}.oc.sl2 .ocr{background:var(--ok);border-color:var(--ok)}
+.nbar{display:flex;align-items:center;gap:.85rem;margin:1.3rem 0;padding:.9rem 1.15rem;background:var(--s1);border:1px solid var(--bd);border-radius:12px}
+.nbari{flex:1;font-size:.79rem;color:var(--tx2)}.nbari strong{color:var(--tx)}
+.bnov{background:var(--s2);border:1.5px solid var(--bd);border-radius:9px;padding:.58rem 1.05rem;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:700;color:var(--tx2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.bnov:hover:not(:disabled){border-color:var(--or);color:var(--or)}.bnov:disabled{opacity:.35;cursor:not-allowed}
+.upsell{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:1.7rem;text-align:center;position:relative;overflow:hidden;margin-top:.9rem}
+.upsell::before{content:'';position:absolute;top:-50px;left:50%;transform:translateX(-50%);width:260px;height:170px;background:radial-gradient(ellipse,rgba(232,93,4,.2) 0%,transparent 70%);pointer-events:none}
+.upi{position:relative;z-index:1}
+.upbg{display:inline-block;background:var(--or);color:#fff;font-size:.59rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:.25rem .8rem;border-radius:20px;margin-bottom:.85rem}
+.upsell h3{font-size:1.05rem;color:var(--tx);margin-bottom:.62rem}
+.upsell h3 em{color:var(--or);font-style:normal}
+.upsell p{font-size:.82rem;color:var(--tx2);line-height:1.7;margin-bottom:1.35rem}
+.bup{display:inline-block;background:var(--or);color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.87rem;text-transform:uppercase;letter-spacing:1px;padding:.88rem 1.75rem;border-radius:10px;text-decoration:none;transition:background .2s}
+.bup:hover{background:var(--ord)}
+.brst{display:block;margin:1rem auto 0;background:none;border:none;color:var(--tx3);font-family:'DM Sans',sans-serif;font-size:.79rem;cursor:pointer;transition:color .2s}
+.brst:hover{color:var(--or)}
+
+/* ══ BOTTOM NAV ══ */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;height:calc(var(--bn) + var(--sb));background:var(--s1);border-top:1px solid var(--bd);z-index:100;padding-bottom:var(--sb)}
+.bnav-i{display:flex;height:var(--bn)}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;cursor:pointer;border:none;background:none;padding:.32rem;transition:all .2s}
+.bnic{font-size:1.2rem;transition:transform .2s}.bnil{font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:600;color:var(--tx3);transition:color .2s}
+.bni.ac .bnic{transform:scale(1.1)}.bni.ac .bnil{color:var(--or)}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:768px){
+  .sdbar{display:none}.bnav{display:flex}
+  .tc{padding-bottom:calc(var(--bn) + var(--sb))}
+  .pg-body,.al2{padding-left:1.1rem;padding-right:1.1rem}
+  .pg-hdr{padding:1.1rem 1.1rem .72rem}
+  .og.c3{grid-template-columns:1fr 1fr}
+  .sgrid{grid-template-columns:1fr}
+  .ccw{width:145px;height:145px}
+  .oc{grid-template-columns:auto 1fr}.ocr{display:none}
+  .nbar{flex-direction:column;align-items:flex-start;gap:.55rem}
+  .form-grid{grid-template-columns:1fr}
+  .conq-grid{grid-template-columns:repeat(3,1fr)}
 }
+@media(max-width:440px){.iw{flex-direction:column}.ctls{flex-direction:column}}
 </style>
 </head>
 <body>
 
-<!-- AUTH OVERLAY -->
-<div class="auth-overlay" id="auth-overlay">
-  <div class="auth-box">
-    <div class="auth-logo">🧪 O Perfumista</div>
-    <div class="auth-title" id="auth-title">Entrar na sua conta</div>
-    <div class="auth-sub" id="auth-sub">Acesse sua coleção salva na nuvem</div>
-    <div class="auth-msg" id="auth-msg"></div>
-    <div class="auth-field" id="auth-name-field" style="display:none">
+<!-- AUTH -->
+<div class="ao" id="ao">
+  <div class="ab">
+    <div class="alo">O Perfumista</div>
+    <h1 class="ah" id="auh">Bem-vindo de volta</h1>
+    <p class="as2" id="aus">Acesse sua coleção salva na nuvem</p>
+    <div class="amsg" id="amsg"></div>
+    <div class="af h" id="anf">
       <label>Nome</label>
-      <input type="text" id="auth-name" placeholder="Seu nome">
+      <input class="afinp" type="text" id="aun" placeholder="Seu nome">
     </div>
-    <div class="auth-field">
+    <div class="af">
       <label>Email</label>
-      <input type="email" id="auth-email" placeholder="seu@email.com">
+      <input class="afinp" type="email" id="aue" placeholder="seu@email.com" autocomplete="email">
     </div>
-    <div class="auth-field">
+    <div class="af">
       <label>Senha</label>
-      <input type="password" id="auth-senha" placeholder="Mínimo 6 caracteres">
+      <input class="afinp" type="password" id="aupw" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <button class="btn-auth" id="btn-auth">Entrar</button>
-    <div class="auth-toggle">
-      <span id="auth-toggle-text">Não tem conta?</span>
-      <a id="auth-toggle-link"> Cadastrar</a>
-    </div>
+    <button class="bauth" id="bauth">Entrar</button>
+    <div class="atog"><span id="atxt">Não tem conta?</span><a id="alink"> Criar conta gratuita</a></div>
   </div>
 </div>
-
-<!-- TOPBAR -->
-<div class="topbar" id="topbar" style="display:none">
-  <div class="topbar-brand">🧪 O Perfumista</div>
-  <div class="topbar-user">
-    <span class="topbar-email" id="topbar-email"></span>
-    <button class="btn-logout" id="btn-logout">Sair</button>
-  </div>
-</div>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <h1>Descubra os <span class="hl">3 Perfumes Certos</span><br>para Completar sua Coleção</h1>
-    <p>Informe o que você já tem. A I.A. analisa seu perfil olfativo e indica exatamente o que está faltando.</p>
-  </div>
-</section>
-<div class="divider"></div>
-
-<!-- FORM -->
-<section class="form-section" id="form-section">
-  <div class="container">
-    <span class="section-label">Análise Personalizada</span>
-    <h2 class="section-title">Preencha abaixo e <em>receba sua análise em segundos</em></h2>
-
-    <div class="steps-bar">
-      <div class="step-item"><div class="step-circle active" id="sc1">1</div><div class="step-label active" id="sl1">Coleção</div></div>
-      <div class="step-connector" id="con1"></div>
-      <div class="step-item"><div class="step-circle" id="sc2">2</div><div class="step-label" id="sl2">Orçamento</div></div>
-      <div class="step-connector" id="con2"></div>
-      <div class="step-item"><div class="step-circle" id="sc3">3</div><div class="step-label" id="sl3">Contexto</div></div>
-      <div class="step-connector" id="con3"></div>
-      <div class="step-item"><div class="step-circle" id="sc4">4</div><div class="step-label" id="sl4">Redes</div></div>
-    </div>
-
-    <!-- CARD 1: Coleção -->
-    <div class="form-card">
-      <div class="form-card-title">💼 Sua Coleção Atual</div>
-      <div class="form-card-sub">Digite perfume a perfume ou anexe um arquivo. Sua coleção é salva automaticamente na nuvem.</div>
-      <div class="input-row">
-        <input type="text" id="perf-input" placeholder="Nome do perfume e marca...">
-        <button class="btn-add" id="btn-add" title="Adicionar">+</button>
-      </div>
-      <div class="conc-row">
-        <select class="conc-select" id="conc-select">
-          <option value="">Concentração (opcional)</option>
-          <option value="Colônia">Colônia</option>
-          <option value="Eau de Toilette">Eau de Toilette</option>
-          <option value="Eau de Parfum">Eau de Parfum</option>
-          <option value="Parfum">Parfum</option>
-        </select>
-      </div>
-      <div class="or-divider"><span>ou anexe um arquivo</span></div>
-      <div class="upload-area" id="upload-area">
-        <input type="file" id="file-input" accept=".pdf,.txt,.doc,.docx">
-        <span class="upload-icon">📂</span>
-        <span class="upload-label">Clique para anexar ou arraste o arquivo</span>
-        <span class="upload-sub">PDF, Word, TXT — a I.A. extrai os perfumes automaticamente</span>
-        <div class="upload-status" id="upload-status"></div>
-      </div>
-      <div class="tags-area" id="tags-area">
-        <span class="tags-empty" id="tags-empty">Sua coleção aparecerá aqui...</span>
-      </div>
-      <div class="cloud-badge" id="cloud-badge" style="display:none">☁️ Coleção sincronizada</div>
-      <div class="count-line">Perfumes: <span id="count">0</span></div>
-    </div>
-
-    <!-- CARD 2: Orçamento -->
-    <div class="form-card">
-      <div class="form-card-title">💰 Orçamento para o Próximo Perfume</div>
-      <div class="form-card-sub">A I.A. respeita sua faixa de preço nas sugestões.</div>
-      <div class="opt-grid" id="budget-grid">
-        <div class="opt" data-budget="até R$350"><span class="v">até R$350</span><span class="l">Entrada</span></div>
-        <div class="opt" data-budget="R$350 a R$1.500"><span class="v">R$350–1.500</span><span class="l">Intermediário</span></div>
-        <div class="opt" data-budget="acima de R$1.500"><span class="v">R$1.500+</span><span class="l">Nicho</span></div>
-      </div>
-    </div>
-
-    <!-- CARD 3: Contexto -->
-    <div class="form-card">
-      <div class="form-card-title">🎯 Quando Você Mais Usa Perfume?</div>
-      <div class="form-card-sub">Selecione quantos quiser.</div>
-      <div class="opt-grid two">
-        <div class="opt ctx-opt" data-ctx="Trabalho / Dia a dia"><span class="emo">💼</span><span class="v">Trabalho</span><span class="l">Dia a dia</span></div>
-        <div class="opt ctx-opt" data-ctx="Encontros / Social"><span class="emo">🍷</span><span class="v">Encontros</span><span class="l">Social</span></div>
-        <div class="opt ctx-opt" data-ctx="Noite / Balada"><span class="emo">🌙</span><span class="v">Noite</span><span class="l">Balada</span></div>
-        <div class="opt ctx-opt" data-ctx="Casual / Final de semana"><span class="emo">☀️</span><span class="v">Casual</span><span class="l">Final de semana</span></div>
-      </div>
-    </div>
-
-    <!-- CARD 4: Redes Sociais -->
-    <div class="form-card">
-      <div class="form-card-title">📱 Redes Sociais <span style="font-size:.78rem;font-weight:500;color:var(--gray-mid)">(opcional)</span></div>
-      <div class="form-card-sub">Para personalizar análises futuras.</div>
-      <div class="social-row">
-        <div class="social-field"><span class="social-prefix">@</span><input type="text" id="instagram" placeholder="instagram"></div>
-        <div class="social-field"><span class="social-prefix">@</span><input type="text" id="tiktok" placeholder="tiktok"></div>
-      </div>
-    </div>
-
-    <!-- LGPD -->
-    <div class="lgpd-box">
-      <input type="checkbox" id="lgpd-check">
-      <div class="lgpd-text">
-        <strong>Consentimento de uso de dados (LGPD)</strong><br>
-        Concordo que meu Instagram, TikTok, coleção de perfumes e sugestões geradas sejam armazenados por Victor Guerise para fins de análise e melhoria do serviço. Dados não serão compartilhados com terceiros. Solicite exclusão em <a href="/cdn-cgi/l/email-protection#493f2e3c2c3b203a2c092e24282025672a2624"><span class="__cf_email__" data-cfemail="4f39283a2a3d263c2a0f28222e2623612c2022">[email&#160;protected]</span></a>.
-      </div>
-    </div>
-
-    <div class="error-msg" id="error-msg">⚠️ Adicione pelo menos 1 perfume à sua coleção para continuar.</div>
-    <button class="btn-submit" id="btn-submit" disabled>🔍 Analisar Minha Coleção Agora</button>
-  </div>
-</section>
 
 <!-- LOADING -->
-<section class="loading-section" id="loading-section">
-  <div class="container">
-    <span class="loading-icon">🧪</span>
-    <div class="loading-title" id="loading-title">Analisando sua coleção...</div>
-    <div class="loading-sub">Identificando famílias olfativas, perfil e gaps</div>
-    <div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+<div class="lo" id="lo">
+  <div class="lb">
+    <span class="li">🧪</span>
+    <div class="lt2" id="lt2">Analisando sua coleção...</div>
+    <div class="lsb">Identificando famílias olfativas e gaps</div>
+    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
   </div>
-</section>
+</div>
 
-<!-- RESULT -->
-<section class="result-section" id="result-section">
-  <div class="container">
-    <div class="result-header">
-      <h2>Análise <em>Concluída</em></h2>
-      <p id="result-sub"></p>
-    </div>
+<!-- APP -->
+<div class="app h" id="app">
 
-    <div class="chart-card" id="chart-card" style="display:none">
-      <div class="chart-title">📊 Distribuição por Família Olfativa</div>
-      <div class="chart-wrap">
-        <div class="chart-canvas-wrap"><canvas id="pizza-chart"></canvas></div>
-        <div class="chart-legend" id="chart-legend"></div>
+  <!-- SIDEBAR -->
+  <aside class="sdbar">
+    <div class="sdtop">
+      <div class="brand">
+        <div class="brand-ic">🧪</div>
+        <div><div class="brand-nm">O Perfumista</div><div class="brand-tg">Análise com I.A.</div></div>
+      </div>
+      <div class="uchip">
+        <div class="uav" id="uav">?</div>
+        <span class="uem" id="uem">—</span>
+        <button class="blo" id="blo" title="Sair">✕</button>
       </div>
     </div>
+    <nav class="navlist">
+      <div class="navit ac" data-tab="perfil"><span class="navic">👤</span><span class="navla">Meu Perfil</span></div>
+      <div class="navit" data-tab="colecao"><span class="navic">📦</span><span class="navla">Coleção</span><span class="navct" id="nct">0</span></div>
+      <div class="navit" data-tab="analise"><span class="navic">📊</span><span class="navla">Análise I.A.</span></div>
+    </nav>
+    <div class="sdver">O Perfumista v2.1 — PWA</div>
+  </aside>
 
-    <!-- NÃO CLASSIFICADOS -->
-    <div class="naoclass-card" id="naoclass-card" style="display:none">
-      <div class="naoclass-header" id="naoclass-header">
-        <span class="naoclass-icon">⚠️</span>
-        <span class="naoclass-titulo" id="naoclass-titulo">Perfumes não classificados</span>
-        <span class="naoclass-badge" id="naoclass-badge">0</span>
-        <span class="naoclass-chevron" id="naoclass-chevron">▼</span>
+  <!-- MAIN -->
+  <main class="mn">
+    <div class="tc">
+
+      <!-- ══ ABA PERFIL ══ -->
+      <div class="tpane ac" id="tab-perfil">
+        <div class="pg-hdr">
+          <h2>Meu Perfil</h2>
+          <p>Suas informações e progresso como colecionador</p>
+        </div>
+        <div class="pg-body">
+
+          <!-- Nível -->
+          <div class="nivel-hero">
+            <div class="nivel-row">
+              <div class="nivel-badge" id="nv-badge">🌱</div>
+              <div class="nivel-info">
+                <div class="nivel-name" id="nv-nome">—</div>
+                <div class="nivel-title" id="nv-titulo">Iniciante</div>
+                <div class="nivel-sub" id="nv-sub">0 perfumes</div>
+              </div>
+            </div>
+            <div class="nivel-bar-wrap">
+              <div class="nivel-bar-labels">
+                <span id="nv-bar-cur">0</span>
+                <span id="nv-bar-next">próximo nível: 11</span>
+              </div>
+              <div class="nivel-bar-bg"><div class="nivel-bar-fill" id="nv-bar" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <!-- Conquistas -->
+          <div class="card">
+            <div class="clabel">🏆 Conquistas por Família Olfativa</div>
+            <div class="conq-grid" id="conq-grid"></div>
+          </div>
+
+          <!-- Stories -->
+          <div class="card">
+            <div class="clabel">📸 Compartilhar para Stories</div>
+            <div class="stories-wrap">
+              <canvas id="stories-canvas" class="stories-preview" width="540" height="960" style="display:none"></canvas>
+              <p style="font-size:.8rem;color:var(--tx2);margin-bottom:1rem">Gere um card para compartilhar sua coleção no Instagram</p>
+              <button class="bshare" id="bshare">✨ Gerar card para Stories</button>
+            </div>
+          </div>
+
+          <!-- Formulário de perfil -->
+          <div class="card">
+            <div class="clabel">✏️ Dados Pessoais</div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Nome</label>
+                <input class="inp" type="text" id="pf-nome" placeholder="Seu nome">
+              </div>
+              <div class="form-field">
+                <label>Cidade</label>
+                <input class="inp" type="text" id="pf-cidade" placeholder="São Paulo, Rio...">
+              </div>
+              <div class="form-field">
+                <label>Clima predominante</label>
+                <select class="inp" id="pf-clima">
+                  <option value="">Selecione</option>
+                  <option value="tropical">🌴 Tropical (quente e úmido)</option>
+                  <option value="seco">☀️ Seco e quente</option>
+                  <option value="temperado">🌤 Temperado (4 estações)</option>
+                  <option value="frio">❄️ Frio / Sul do Brasil</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Faixa etária</label>
+                <select class="inp" id="pf-idade">
+                  <option value="">Selecione</option>
+                  <option value="18-24">18–24 anos</option>
+                  <option value="25-34">25–34 anos</option>
+                  <option value="35-44">35–44 anos</option>
+                  <option value="45+">45+ anos</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Orçamento padrão</label>
+                <select class="inp" id="pf-budget">
+                  <option value="">Selecione</option>
+                  <option value="até R$350">até R$350</option>
+                  <option value="R$350 a R$1.500">R$350 a R$1.500</option>
+                  <option value="acima de R$1.500">acima de R$1.500</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;margin-top:.5rem">
+              <button class="bsalvar" id="bsalvar">💾 Salvar perfil</button>
+              <span class="salvo-msg" id="salvo-msg">✓ Salvo!</span>
+            </div>
+          </div>
+
+        </div>
       </div>
-      <div class="naoclass-body" id="naoclass-body">
-        <div class="naoclass-sub">A IA não identificou a família olfativa destes perfumes. Classifique os que souber — o gráfico e as sugestões serão atualizados.</div>
-        <div class="naoclass-lista" id="naoclass-lista"></div>
-        <div class="naoclass-progress" id="naoclass-progress"></div>
-        <button class="btn-atualizar" id="btn-atualizar">✅ Atualizar gráfico e sugestões</button>
+
+      <!-- ══ ABA COLEÇÃO ══ -->
+      <div class="tpane" id="tab-colecao">
+        <div class="pg-hdr">
+          <h2>Minha Coleção</h2>
+          <p>Adicione, organize e gerencie seus perfumes</p>
+          <div class="ctls">
+            <div class="iw">
+              <input class="inp" type="text" id="pi" placeholder="Nome do perfume e marca...">
+              <select class="inp" id="cs" style="max-width:120px">
+                <option value="">Conc.</option>
+                <option value="Colônia">Colônia</option>
+                <option value="EDT">EDT</option>
+                <option value="EDP">EDP</option>
+                <option value="Parfum">Parfum</option>
+              </select>
+              <button class="bai" id="badd" title="Adicionar">+</button>
+            </div>
+            <div class="sw2">
+              <span class="sico">🔍</span>
+              <input class="inp sr" type="text" id="srch" placeholder="Buscar...">
+            </div>
+          </div>
+        </div>
+        <div class="pg-body">
+          <div class="dz" id="dz">
+            <input type="file" id="fi" accept=".pdf,.txt,.doc,.docx">
+            <div class="dl">📂 <strong>Arraste um arquivo</strong> ou clique — PDF, Word, TXT</div>
+            <div class="us" id="us"></div>
+          </div>
+          <div class="cst" id="cst"></div>
+          <div class="cl2" id="cl2">☁️ —</div>
+          <div class="plist" id="plist">
+            <div class="es" id="es">
+              <div class="ei">🫙</div>
+              <p>Sua coleção está vazia.<br>Adicione o primeiro perfume acima.</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="diag-card">
-      <div class="diag-title">📋 Diagnóstico da Sua Coleção</div>
-      <div id="diag-text"></div>
-    </div>
+      <!-- ══ ABA ANÁLISE ══ -->
+      <div class="tpane" id="tab-analise">
+        <div class="al2">
+          <div style="margin-bottom:1.6rem;padding-top:.2rem">
+            <h2 style="font-size:1.2rem;font-weight:900;margin-bottom:.12rem">Análise I.A.</h2>
+            <p style="font-size:.79rem;color:var(--tx2)">Analisando os <span id="fc" style="color:var(--or);font-weight:700">0</span> perfumes da sua coleção</p>
+          </div>
 
-    <div class="diag-card" style="border-left-color:var(--success)">
-      <div class="diag-title" style="color:var(--success)">💡 Sugestões por Família Lacunar</div>
-      <div id="sugestoes-container"></div>
-    </div>
+          <div class="sblk">
+            <div class="slabel">Orçamento</div>
+            <div class="stitle">Quanto você quer gastar no próximo perfume?</div>
+            <div class="og c3" id="bg">
+              <div class="obt" data-b="até R$350"><span class="ov">até R$350</span><span class="ol">Entrada</span></div>
+              <div class="obt" data-b="R$350 a R$1.500"><span class="ov">R$350–1.500</span><span class="ol">Intermediário</span></div>
+              <div class="obt" data-b="acima de R$1.500"><span class="ov">R$1.500+</span><span class="ol">Nicho</span></div>
+            </div>
+          </div>
 
-    <div class="novas-wrap">
-      <button class="btn-novas" id="btn-novas">🔄 Quero outras sugestões</button>
-      <div class="novas-count" id="novas-count">Você pode pedir novas sugestões até 3 vezes</div>
-    </div>
+          <div class="sblk">
+            <div class="slabel">Contexto de uso</div>
+            <div class="stitle">Quando você mais usa perfume?</div>
+            <div class="og c2">
+              <div class="obt ctx" data-ctx="Trabalho / Dia a dia"><span class="oe">💼</span><span class="ov">Trabalho</span><span class="ol">Dia a dia</span></div>
+              <div class="obt ctx" data-ctx="Encontros / Social"><span class="oe">🍷</span><span class="ov">Encontros</span><span class="ol">Social</span></div>
+              <div class="obt ctx" data-ctx="Noite / Balada"><span class="oe">🌙</span><span class="ov">Noite</span><span class="ol">Balada</span></div>
+              <div class="obt ctx" data-ctx="Casual / Final de semana"><span class="oe">☀️</span><span class="ov">Casual</span><span class="ol">Fim de semana</span></div>
+            </div>
+          </div>
 
-    <div class="upsell-card">
-      <div class="upsell-inner">
-        <div class="upsell-badge">Próximo Passo</div>
-        <h3 class="upsell-title">Quer entender <em>por que</em> cada perfume<br>funciona para você?</h3>
-        <p class="upsell-text">No Curso Prático da Perfumaria você aprende a identificar seu perfil olfativo, escolher com autonomia e montar uma coleção equilibrada.</p>
-        <a class="btn-upsell" href="https://pay.hotmart.com/X104571170T?checkoutMode=10" target="_blank">Ver o Curso Completo →</a>
+          <div class="sblk">
+            <div class="slabel">Redes sociais</div>
+            <div class="stitle">Opcional — para análises futuras</div>
+            <div class="sgrid">
+              <div class="swrap"><span class="spfx">@</span><input class="inp" type="text" id="ig" placeholder="instagram"></div>
+              <div class="swrap"><span class="spfx">@</span><input class="inp" type="text" id="tt" placeholder="tiktok"></div>
+            </div>
+          </div>
+
+          <div class="lgpd">
+            <input type="checkbox" id="lc">
+            <div class="lgpdt">
+              <strong style="color:var(--tx)">Consentimento LGPD</strong><br>
+              Concordo que minha coleção, redes sociais e sugestões sejam armazenados por Victor Guerise para melhoria do serviço. Solicite exclusão: <a href="mailto:vguerise@gmail.com">vguerise@gmail.com</a>
+            </div>
+          </div>
+
+          <div class="emsg" id="emsg"></div>
+          <button class="bpulse" id="ban" disabled>🔍 Analisar Coleção Agora</button>
+
+          <!-- RESULTADO -->
+          <div class="rw" id="rw">
+            <div class="rsep"></div>
+            <h2 class="rh">Análise <em>Concluída</em></h2>
+            <p class="rsub" id="rsub"></p>
+
+            <div class="card h" id="cc">
+              <div class="clabel">📊 Distribuição por Família Olfativa</div>
+              <div class="cw2">
+                <div class="ccw"><canvas id="pc"></canvas></div>
+                <div class="clg" id="clg"></div>
+              </div>
+            </div>
+
+            <div id="ncwrap" class="h">
+              <div class="nctog" id="nctog">
+                <span>⚠️</span>
+                <span class="ncl" id="ncl">Não classificados</span>
+                <span class="ncbg" id="ncbg">0</span>
+                <span class="nchv" id="nchv">▼</span>
+              </div>
+              <div class="ncbd" id="ncbd">
+                <div class="ncsubtt">A I.A. não identificou a família olfativa destes perfumes. Classifique os que souber — o gráfico será atualizado.</div>
+                <div class="nclist" id="nclist"></div>
+                <div class="ncprog" id="ncprog"></div>
+                <button class="batu" id="batu" disabled>✅ Atualizar gráfico</button>
+              </div>
+            </div>
+
+            <div class="card" id="dc">
+              <div class="clabel">📋 Diagnóstico</div>
+              <div id="dct"></div>
+            </div>
+
+            <div class="card" id="sc">
+              <div class="clabel" style="color:var(--ok)">💡 Sugestões por Família Lacunar</div>
+              <div id="sct"></div>
+            </div>
+
+            <div class="nbar">
+              <div class="nbari"><strong>Quer outras opções?</strong> <span id="nit">Você pode pedir novas sugestões até 3 vezes.</span></div>
+              <button class="bnov" id="bnov">🔄 Novas sugestões</button>
+            </div>
+
+            <div class="upsell">
+              <div class="upi">
+                <div class="upbg">Próximo passo</div>
+                <h3>Quer entender <em>por que</em> cada perfume funciona para você?</h3>
+                <p>No Curso Prático da Perfumaria você aprende a identificar seu perfil olfativo, escolher com autonomia e montar uma coleção equilibrada.</p>
+                <a class="bup" href="https://pay.hotmart.com/X104571170T?checkoutMode=10" target="_blank">Ver o Curso Completo →</a>
+              </div>
+            </div>
+            <button class="brst" id="brst">↩ Nova análise</button>
+          </div>
+        </div>
       </div>
-    </div>
-    <button class="btn-reset" id="btn-reset">↩ Fazer nova análise</button>
+
+    </div><!-- /tc -->
+  </main>
+</div><!-- /app -->
+
+<!-- BOTTOM NAV -->
+<nav class="bnav h" id="bnav">
+  <div class="bnav-i">
+    <button class="bni ac" data-tab="perfil"><span class="bnic">👤</span><span class="bnil">Perfil</span></button>
+    <button class="bni" data-tab="colecao"><span class="bnic">📦</span><span class="bnil">Coleção</span></button>
+    <button class="bni" data-tab="analise"><span class="bnic">📊</span><span class="bnil">Análise</span></button>
   </div>
-</section>
+</nav>
 
-<footer class="footer">
-  <strong style="color:var(--orange)">O Perfumista</strong> — por <a href="https://vguerise.github.io/pv-curso-pratico-da-perfumaria/" target="_blank">Victor Guerise</a>
-</footer>
+<script>
+// ── CONFIG ──
+const SURL='https://dnvlorvebvcfvyhsbnbm.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRudmxvcnZlYnZjZnZ5aHNibmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MTYzOTEsImV4cCI6MjA4Nzk5MjM5MX0.Bu1m7Kc8Hh7cVsQFVJykyUm6aE4PuGf7J8xUs9jhDJg';
+const DB=supabase.createClient(SURL,SKEY);
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ── SUPABASE ──
-const SUPA_URL = 'https://dnvlorvebvcfvyhsbnbm.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRudmxvcnZlYnZjZnZ5aHNibmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MTYzOTEsImV4cCI6MjA4Nzk5MjM5MX0.Bu1m7Kc8Hh7cVsQFVJykyUm6aE4PuGf7J8xUs9jhDJg';
-const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+// ── PWA ──
+const mf={name:'O Perfumista',short_name:'Perfumista',description:'Análise de coleção com I.A.',start_url:'./',display:'standalone',background_color:'#0E0E0E',theme_color:'#E85D04',icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="80" fill="%23E85D04"/><text x="256" y="340" text-anchor="middle" font-size="260">🧪</text></svg>',sizes:'512x512',type:'image/svg+xml'}]};
+document.getElementById('pwa-manifest').href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/manifest+json'}));
+if('serviceWorker'in navigator){const sw=`const C='pf-v2';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['./']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});}
+
+// ── NÍVEIS ──
+const NIVEIS=[
+  {min:0,  max:10,  emoji:'🌱',titulo:'Iniciante',    cor:'#2ECC71'},
+  {min:11, max:25,  emoji:'🔥',titulo:'Entusiasta',   cor:'#F59E0B'},
+  {min:26, max:50,  emoji:'💎',titulo:'Colecionador', cor:'#3B82F6'},
+  {min:51, max:100, emoji:'🏆',titulo:'Expert',       cor:'#8B5CF6'},
+  {min:101,max:9999,emoji:'👑',titulo:'Curador',      cor:'#E85D04'},
+];
+
+// ── FAMÍLIAS / CONQUISTAS ──
+const FAMS=['Fresco/Cítrico','Aromático/Verde','Doce/Gourmand','Amadeirado','Especiado/Oriental','Aquático/Mineral','Talco/Fougère','Floral','Frutado'];
+const FICONS={'Fresco/Cítrico':'🍋','Aromático/Verde':'🌿','Doce/Gourmand':'🍫','Amadeirado':'🪵','Especiado/Oriental':'🌶️','Aquático/Mineral':'🌊','Talco/Fougère':'💫','Floral':'🌸','Frutado':'🍓'};
+const FCOR={'Fresco/Cítrico':'#F59E0B','Aromático/Verde':'#10B981','Doce/Gourmand':'#EC4899','Amadeirado':'#92400E','Especiado/Oriental':'#DC2626','Aquático/Mineral':'#3B82F6','Talco/Fougère':'#8B5CF6','Floral':'#F472B6','Frutado':'#EF4444'};
 
 // ── ESTADO ──
-let colecao = [];
-let budget = '';
-let contextos = [];
-let extraContexto = '';
-let currentUser = null;
-let colecaoDbId = null;
-let pizzaChartInstance = null;
-let novasCount = 0;
-let perfumesJaSugeridos = [];
-let ultimoDiagnostico = '';
-let saveTimer = null;
-let familiasBase = {};          // distribuição original da IA
-let naoClassificados = [];      // [{nome, familia: null}]
-let classificacoesExtras = {};  // {nome: familia}
+let user=null,dbId=null,perfilId=null;
+let col=[];
+let perfil={nome:'',cidade:'',clima:'',idade:'',budget:''};
+let budget='',ctxs=[],extraCtx='';
+let chart=null,famBase={},naoClass=[],classExtras={};
+let novasN=0,jaSug=[],saveT=null,srch='';
 
-const FAMILIA_CORES = {
-  'Fresco/Cítrico':'#F59E0B','Aromático/Verde':'#10B981','Doce/Gourmand':'#EC4899',
-  'Amadeirado':'#92400E','Especiado/Oriental':'#DC2626','Aquático/Mineral':'#3B82F6',
-  'Talco/Fougère':'#8B5CF6','Floral':'#F472B6','Frutado':'#EF4444'
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-
-  // ── AUTH STATE ──
-  supa.auth.onAuthStateChange(async (event, session) => {
-    if (session && session.user) {
-      currentUser = session.user;
-      mostrarApp();
-      await carregarColecao();
-    } else {
-      currentUser = null;
-      mostrarAuth();
-    }
+document.addEventListener('DOMContentLoaded',()=>{
+  DB.auth.onAuthStateChange((_,s)=>{
+    if(s?.user){user=s.user;iniciar();}
+    else{user=null;mostrarAuth();}
   });
 
-  // ── AUTH EVENTS ──
-  let modoAuth = 'login'; // 'login' | 'cadastro'
-
-  document.getElementById('btn-auth').addEventListener('click', async () => {
-    const email = document.getElementById('auth-email').value.trim();
-    const senha = document.getElementById('auth-senha').value;
-    const nome  = document.getElementById('auth-name').value.trim();
-    const btn   = document.getElementById('btn-auth');
-    const msg   = document.getElementById('auth-msg');
-
-    if (!email || !senha) { mostrarMsgAuth('Preencha email e senha.', 'err'); return; }
-    if (modoAuth === 'cadastro' && senha.length < 6) { mostrarMsgAuth('Senha mínimo 6 caracteres.', 'err'); return; }
-
-    btn.disabled = true;
-    btn.textContent = 'Aguarde...';
-    msg.className = 'auth-msg';
-
-    try {
-      if (modoAuth === 'login') {
-        const { error } = await supa.auth.signInWithPassword({ email, password: senha });
-        if (error) throw error;
-      } else {
-        const { error } = await supa.auth.signUp({ email, password: senha, options: { data: { nome } } });
-        if (error) throw error;
-        mostrarMsgAuth('Conta criada! Verifique seu email para confirmar.', 'ok');
-      }
-    } catch(e) {
-      const msgs = {
-        'Invalid login credentials': 'Email ou senha incorretos.',
-        'User already registered': 'Email já cadastrado. Faça login.',
-        'Email not confirmed': 'Confirme seu email antes de entrar.'
-      };
-      mostrarMsgAuth(msgs[e.message] || e.message, 'err');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = modoAuth === 'login' ? 'Entrar' : 'Criar conta';
-    }
+  // Auth
+  let modo='login';
+  document.getElementById('bauth').addEventListener('click',fazerAuth);
+  ['aue','aupw','aun'].forEach(id=>document.getElementById(id)?.addEventListener('keypress',e=>{if(e.key==='Enter')fazerAuth();}));
+  document.getElementById('alink').addEventListener('click',()=>{
+    modo=modo==='login'?'cadastro':'login';
+    const L=modo==='login';
+    document.getElementById('auh').textContent=L?'Bem-vindo de volta':'Criar conta gratuita';
+    document.getElementById('aus').textContent=L?'Acesse sua coleção salva na nuvem':'Salve sua coleção na nuvem';
+    document.getElementById('atxt').textContent=L?'Não tem conta?':'Já tem conta?';
+    document.getElementById('alink').textContent=L?' Criar conta gratuita':' Entrar';
+    document.getElementById('bauth').textContent=L?'Entrar':'Criar conta';
+    document.getElementById('anf').classList.toggle('h',L);
+    document.getElementById('amsg').className='amsg';
   });
 
-  document.getElementById('auth-toggle-link').addEventListener('click', () => {
-    modoAuth = modoAuth === 'login' ? 'cadastro' : 'login';
-    const isLogin = modoAuth === 'login';
-    document.getElementById('auth-title').textContent = isLogin ? 'Entrar na sua conta' : 'Criar conta gratuita';
-    document.getElementById('auth-sub').textContent   = isLogin ? 'Acesse sua coleção salva na nuvem' : 'Salve sua coleção na nuvem';
-    document.getElementById('auth-toggle-text').textContent = isLogin ? 'Não tem conta?' : 'Já tem conta?';
-    document.getElementById('auth-toggle-link').textContent = isLogin ? ' Cadastrar' : ' Entrar';
-    document.getElementById('btn-auth').textContent = isLogin ? 'Entrar' : 'Criar conta';
-    document.getElementById('auth-name-field').style.display = isLogin ? 'none' : 'block';
-    document.getElementById('auth-msg').className = 'auth-msg';
-  });
+  // Tabs
+  document.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click',()=>goTab(el.dataset.tab)));
 
-  // Enter no auth
-  ['auth-email','auth-senha','auth-name'].forEach(id => {
-    document.getElementById(id).addEventListener('keypress', e => {
-      if (e.key === 'Enter') document.getElementById('btn-auth').click();
-    });
-  });
+  // Perfil
+  document.getElementById('bsalvar').addEventListener('click',salvarPerfil);
+  document.getElementById('bshare').addEventListener('click',gerarStories);
+  document.getElementById('blo').addEventListener('click',()=>DB.auth.signOut());
 
-  document.getElementById('btn-logout').addEventListener('click', async () => {
-    await supa.auth.signOut();
-  });
-
-  // ── FORM EVENTS ──
-  document.getElementById('btn-add').addEventListener('click', addPerfume);
-  document.getElementById('perf-input').addEventListener('keypress', e => {
-    if (e.key === 'Enter') { e.preventDefault(); addPerfume(); }
-  });
-  document.getElementById('btn-submit').addEventListener('click', analisar);
-  document.getElementById('btn-reset').addEventListener('click', resetar);
-  document.getElementById('btn-novas').addEventListener('click', novasSugestoes);
-
-  // Accordion não classificados
-  document.getElementById('naoclass-header').addEventListener('click', () => {
-    const body    = document.getElementById('naoclass-body');
-    const chevron = document.getElementById('naoclass-chevron');
-    const open    = body.classList.toggle('open');
-    chevron.classList.toggle('open', open);
-  });
-  document.getElementById('btn-atualizar').addEventListener('click', aplicarClassificacoes);
-  document.getElementById('lgpd-check').addEventListener('change', function() {
-    document.getElementById('btn-submit').disabled = !this.checked;
-  });
-
-  document.querySelectorAll('#budget-grid .opt').forEach(el => {
-    el.addEventListener('click', () => {
-      document.querySelectorAll('#budget-grid .opt').forEach(o => o.classList.remove('sel'));
-      el.classList.add('sel');
-      budget = el.dataset.budget;
-      atualizarSteps();
-    });
-  });
-
-  document.querySelectorAll('.ctx-opt').forEach(el => {
-    el.addEventListener('click', () => {
-      const val = el.dataset.ctx;
-      el.classList.toggle('sel');
-      if (el.classList.contains('sel')) contextos.push(val);
-      else contextos = contextos.filter(c => c !== val);
-    });
-  });
+  // Coleção
+  document.getElementById('badd').addEventListener('click',addP);
+  document.getElementById('pi').addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();addP();}});
+  document.getElementById('srch').addEventListener('input',function(){srch=this.value.toLowerCase();renderCol();});
 
   // Upload
-  const uploadArea = document.getElementById('upload-area');
-  const fileInput  = document.getElementById('file-input');
-  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
-  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-  uploadArea.addEventListener('drop', e => {
-    e.preventDefault(); uploadArea.classList.remove('dragover');
-    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  const dz=document.getElementById('dz'),fi=document.getElementById('fi');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dg');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('dg'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dg');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+  fi.addEventListener('change',function(){if(this.files[0])handleFile(this.files[0]);});
+
+  // Análise
+  document.querySelectorAll('#bg .obt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#bg .obt').forEach(o=>o.classList.remove('sl'));
+    el.classList.add('sl');budget=el.dataset.b;
+  }));
+  document.querySelectorAll('.ctx').forEach(el=>el.addEventListener('click',()=>{
+    el.classList.toggle('sl');
+    const v=el.dataset.ctx;
+    ctxs=el.classList.contains('sl')?[...ctxs,v]:ctxs.filter(c=>c!==v);
+  }));
+  document.getElementById('lc').addEventListener('change',function(){document.getElementById('ban').disabled=!this.checked;});
+  document.getElementById('ban').addEventListener('click',analisar);
+  document.getElementById('brst').addEventListener('click',resetar);
+  document.getElementById('bnov').addEventListener('click',novas);
+  document.getElementById('nctog').addEventListener('click',()=>{
+    document.getElementById('ncbd').classList.toggle('op');
+    document.getElementById('nchv').classList.toggle('op');
   });
-  fileInput.addEventListener('change', function() { if (this.files[0]) handleFile(this.files[0]); });
+  document.getElementById('batu').addEventListener('click',aplicar);
+});
 
-}); // fim DOMContentLoaded
-
-// ── AUTH UI ──
-function mostrarAuth() {
-  document.getElementById('auth-overlay').style.display = 'flex';
-  document.getElementById('topbar').style.display = 'none';
-}
-
-function mostrarApp() {
-  document.getElementById('auth-overlay').style.display = 'none';
-  document.getElementById('topbar').style.display = 'flex';
-  document.getElementById('topbar-email').textContent = currentUser.email;
-}
-
-function mostrarMsgAuth(texto, tipo) {
-  const el = document.getElementById('auth-msg');
-  el.textContent = texto;
-  el.className = 'auth-msg ' + tipo;
-}
-
-// ── SUPABASE: COLEÇÃO ──
-async function carregarColecao() {
-  try {
-    const { data, error } = await supa
-      .from('colecoes')
-      .select('*')
-      .eq('user_id', currentUser.id)
-      .single();
-
-    if (data && data.perfumes) {
-      colecao = data.perfumes;
-      colecaoDbId = data.id;
-      renderTags();
-      atualizarSteps();
-      if (colecao.length > 0) {
-        document.getElementById('cloud-badge').style.display = 'flex';
-      }
+// ══════ AUTH ══════
+async function fazerAuth(){
+  const email=document.getElementById('aue').value.trim();
+  const senha=document.getElementById('aupw').value;
+  const btn=document.getElementById('bauth');
+  if(!email||!senha){amsg('Preencha email e senha.','e');return;}
+  btn.disabled=true;btn.textContent='Aguarde...';
+  try{
+    const isLogin=document.getElementById('auh').textContent.includes('volta');
+    if(isLogin){
+      const{error}=await DB.auth.signInWithPassword({email,password:senha});
+      if(error)throw error;
+    }else{
+      const nome=document.getElementById('aun').value.trim();
+      const{error}=await DB.auth.signUp({email,password:senha,options:{data:{nome}}});
+      if(error)throw error;
+      amsg('Conta criada! Verifique seu email.','o');
     }
-  } catch(e) {
-    // Sem coleção ainda — ok
+  }catch(e){
+    const m={'Invalid login credentials':'Email ou senha incorretos.','User already registered':'Email já cadastrado.','Email not confirmed':'Confirme seu email primeiro.'};
+    amsg(m[e.message]||e.message,'e');
+  }finally{
+    btn.disabled=false;
+    btn.textContent=document.getElementById('auh').textContent.includes('volta')?'Entrar':'Criar conta';
+  }
+}
+function amsg(t,c){const el=document.getElementById('amsg');el.textContent=t;el.className='amsg '+c;}
+
+// ══════ INICIAR ══════
+async function iniciar(){
+  document.getElementById('ao').style.display='none';
+  document.getElementById('app').classList.remove('h');
+  document.getElementById('bnav').classList.remove('h');
+  document.getElementById('uem').textContent=user.email;
+  document.getElementById('uav').textContent=user.email[0].toUpperCase();
+  await Promise.all([carregarCol(),carregarPerfil()]);
+  renderNivel();
+  renderConquistas();
+}
+function mostrarAuth(){
+  document.getElementById('ao').style.display='flex';
+  document.getElementById('app').classList.add('h');
+  document.getElementById('bnav').classList.add('h');
+}
+
+// ══════ TABS ══════
+function goTab(t){
+  document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('ac'));
+  document.querySelectorAll('[data-tab]').forEach(el=>el.classList.toggle('ac',el.dataset.tab===t));
+  document.getElementById('tab-'+t).classList.add('ac');
+  if(t==='analise'){
+    document.getElementById('fc').textContent=col.length;
+    if(perfil.budget&&!budget){
+      const btn=document.querySelector(`[data-b="${perfil.budget}"]`);
+      if(btn){btn.classList.add('sl');budget=perfil.budget;}
+    }
   }
 }
 
-async function salvarColecaoNuvem() {
-  if (!currentUser) return;
+// ══════ SUPABASE ══════
+async function carregarCol(){
+  cloud('sg','☁️ Carregando...');
+  try{
+    const{data}=await DB.from('colecoes').select('*').eq('user_id',user.id).single();
+    if(data?.perfumes){col=data.perfumes;dbId=data.id;}
+  }catch(_){}
+  renderCol();renderStats();
+  cloud('sy','☁️ Sincronizado');
+}
 
-  try {
-    if (colecaoDbId) {
-      await supa.from('colecoes').update({
-        perfumes: colecao,
-        updated_at: new Date().toISOString()
-      }).eq('id', colecaoDbId);
+async function carregarPerfil(){
+  try{
+    const{data}=await DB.from('perfis').select('*').eq('user_id',user.id).single();
+    if(data){
+      perfil={nome:data.nome||'',cidade:data.cidade||'',clima:data.clima||'',idade:data.idade||'',budget:data.budget||''};
+      perfilId=data.id;
+      document.getElementById('pf-nome').value=perfil.nome;
+      document.getElementById('pf-cidade').value=perfil.cidade;
+      document.getElementById('pf-clima').value=perfil.clima;
+      document.getElementById('pf-idade').value=perfil.idade;
+      document.getElementById('pf-budget').value=perfil.budget;
+      document.getElementById('nv-nome').textContent=perfil.nome||user.email.split('@')[0];
     } else {
-      const { data } = await supa.from('colecoes').insert({
-        user_id: currentUser.id,
-        perfumes: colecao
-      }).select().single();
-      if (data) colecaoDbId = data.id;
+      document.getElementById('nv-nome').textContent=user.email.split('@')[0];
     }
-    document.getElementById('cloud-badge').style.display = colecao.length > 0 ? 'flex' : 'none';
-  } catch(e) {
-    console.warn('Erro ao salvar coleção:', e);
+  }catch(_){
+    document.getElementById('nv-nome').textContent=user.email.split('@')[0];
   }
 }
 
-// Debounce para não salvar a cada tecla
-function salvarColecaoDebounce() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(salvarColecaoNuvem, 800);
+async function salvarCol(){
+  if(!user)return;
+  cloud('sg','☁️ Salvando...');
+  try{
+    if(dbId){await DB.from('colecoes').update({perfumes:col,updated_at:new Date().toISOString()}).eq('id',dbId);}
+    else{const{data}=await DB.from('colecoes').insert({user_id:user.id,perfumes:col}).select().single();if(data)dbId=data.id;}
+    cloud('sy','☁️ Sincronizado');
+  }catch(_){cloud('','⚠️ Erro ao salvar');}
 }
 
-// ── CAPITALIZAR ──
-function capitalizar(str) {
-  const min = ['de','do','da','dos','das','e','em','a','o','para','com','por'];
-  return str.toLowerCase().split(' ').map((w, i) =>
-    (i === 0 || !min.includes(w)) ? w.charAt(0).toUpperCase() + w.slice(1) : w
-  ).join(' ');
+async function salvarPerfil(){
+  perfil.nome=document.getElementById('pf-nome').value.trim();
+  perfil.cidade=document.getElementById('pf-cidade').value.trim();
+  perfil.clima=document.getElementById('pf-clima').value;
+  perfil.idade=document.getElementById('pf-idade').value;
+  perfil.budget=document.getElementById('pf-budget').value;
+  document.getElementById('nv-nome').textContent=perfil.nome||user.email.split('@')[0];
+  try{
+    const payload={user_id:user.id,...perfil,updated_at:new Date().toISOString()};
+    if(perfilId){await DB.from('perfis').update(payload).eq('id',perfilId);}
+    else{const{data}=await DB.from('perfis').insert(payload).select().single();if(data)perfilId=data.id;}
+    const msg=document.getElementById('salvo-msg');
+    msg.classList.add('sh');setTimeout(()=>msg.classList.remove('sh'),2500);
+  }catch(e){console.warn('Perfil:',e);}
 }
 
-// ── COLEÇÃO ──
-function addPerfume() {
-  const input  = document.getElementById('perf-input');
-  const select = document.getElementById('conc-select');
-  const nomeRaw = input.value.trim();
-  if (!nomeRaw) return;
+function cloud(c,t){const el=document.getElementById('cl2');el.className='cl2'+(c?' '+c:'');el.textContent=t;}
+function deb(){clearTimeout(saveT);saveT=setTimeout(salvarCol,800);}
 
-  const nome   = capitalizar(nomeRaw);
-  const conc   = select.value;
-  const entrada = conc ? `${nome} ${conc}` : nome;
-
-  if (colecao.includes(entrada)) { input.value = ''; return; }
-
-  colecao.push(entrada);
-  colecao.sort((a, b) => a.localeCompare(b, 'pt-BR'));
-  input.value = '';
-  select.value = '';
-  renderTags();
-  atualizarSteps();
-  salvarColecaoDebounce();
+// ══════ NÍVEL ══════
+function calcNivel(n){
+  return NIVEIS.find(v=>n>=v.min&&n<=v.max)||NIVEIS[NIVEIS.length-1];
 }
 
-function remover(i) {
-  colecao.splice(i, 1);
-  colecao.sort((a, b) => a.localeCompare(b, 'pt-BR'));
-  renderTags();
-  atualizarSteps();
-  salvarColecaoDebounce();
+function renderNivel(){
+  const n=col.length;
+  const nv=calcNivel(n);
+  const proximo=NIVEIS.find(v=>v.min>nv.min);
+  document.getElementById('nv-badge').textContent=nv.emoji;
+  document.getElementById('nv-badge').style.background=nv.cor;
+  document.getElementById('nv-badge').style.boxShadow=`0 0 24px ${nv.cor}66`;
+  document.getElementById('nv-titulo').textContent=nv.titulo;
+  document.getElementById('nv-titulo').style.color=nv.cor;
+  document.getElementById('nv-sub').textContent=`${n} perfume${n!==1?'s':''} na coleção`;
+  document.getElementById('nct').textContent=n;
+  if(proximo){
+    const prog=Math.round(((n-nv.min)/(proximo.min-nv.min))*100);
+    document.getElementById('nv-bar').style.width=prog+'%';
+    document.getElementById('nv-bar-cur').textContent=n;
+    document.getElementById('nv-bar-next').textContent=`próximo nível: ${proximo.min}`;
+  }else{
+    document.getElementById('nv-bar').style.width='100%';
+    document.getElementById('nv-bar-cur').textContent=n;
+    document.getElementById('nv-bar-next').textContent='Nível máximo atingido 👑';
+  }
 }
 
-function renderTags() {
-  const area  = document.getElementById('tags-area');
-  const empty = document.getElementById('tags-empty');
-  document.getElementById('count').textContent = colecao.length;
-  area.querySelectorAll('.tag').forEach(t => t.remove());
-
-  if (colecao.length === 0) { empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-
-  colecao.forEach((p, i) => {
-    const tag = document.createElement('div');
-    tag.className = 'tag';
-    const txt = document.createElement('span');
-    txt.textContent = p;
-    const x = document.createElement('span');
-    x.className = 'tag-x';
-    x.textContent = '×';
-    x.addEventListener('click', () => remover(i));
-    tag.appendChild(txt);
-    tag.appendChild(x);
-    area.appendChild(tag);
+// ══════ CONQUISTAS ══════
+function renderConquistas(){
+  const grid=document.getElementById('conq-grid');
+  grid.innerHTML='';
+  const famsColeção=new Set(col.filter(p=>p.familia).map(p=>p.familia));
+  FAMS.forEach(fam=>{
+    const desbloqueada=famsColeção.has(fam);
+    const div=document.createElement('div');
+    div.className='conq-item'+(desbloqueada?' desbloqueada':'');
+    div.innerHTML=`
+      <span class="ci-ico">${FICONS[fam]||'🌀'}</span>
+      <span class="ci-nm">${fam}</span>
+      <span class="conq-selo">✓</span>`;
+    div.title=desbloqueada?`✓ ${fam} desbloqueada!`:`Adicione um perfume ${fam} para desbloquear`;
+    grid.appendChild(div);
   });
 }
 
-// ── STEPS ──
-function atualizarSteps() {
-  const set = (n, state) => {
-    const c = document.getElementById('sc'+n);
-    const l = document.getElementById('sl'+n);
-    if (!c) return;
-    c.className = 'step-circle ' + state;
-    l.className = 'step-label ' + state;
-    c.textContent = state === 'done' ? '✓' : n;
-  };
-  const setLine = (n, done) => {
-    const el = document.getElementById('con'+n);
-    if (el) el.className = 'step-connector' + (done ? ' done' : '');
-  };
+// ══════ STORIES ══════
+function gerarStories(){
+  const canvas=document.getElementById('stories-canvas');
+  canvas.style.display='block';
+  const ctx=canvas.getContext('2d');
+  const W=540,H=960;
 
-  if (colecao.length > 0) { set(1,'done'); setLine(1,true); set(2,'active'); }
-  else { set(1,'active'); setLine(1,false); set(2,''); }
+  // Fundo
+  ctx.fillStyle='#0E0E0E';
+  ctx.fillRect(0,0,W,H);
 
-  if (budget) { set(2,'done'); setLine(2,true); set(3,'active'); }
-  else { setLine(2,false); }
+  // Gradiente sutil
+  const grd=ctx.createRadialGradient(W/2,200,50,W/2,200,400);
+  grd.addColorStop(0,'rgba(232,93,4,0.18)');
+  grd.addColorStop(1,'rgba(14,14,14,0)');
+  ctx.fillStyle=grd;
+  ctx.fillRect(0,0,W,H);
+
+  const nv=calcNivel(col.length);
+
+  // Emoji nível
+  ctx.font='90px serif';
+  ctx.textAlign='center';
+  ctx.fillText(nv.emoji,W/2,220);
+
+  // Título nível
+  ctx.font='bold 52px Montserrat, sans-serif';
+  ctx.fillStyle=nv.cor;
+  ctx.fillText(nv.titulo,W/2,310);
+
+  // Nome
+  const nome=perfil.nome||user?.email?.split('@')[0]||'Colecionador';
+  ctx.font='500 32px DM Sans, sans-serif';
+  ctx.fillStyle='rgba(240,240,240,0.65)';
+  ctx.fillText(nome,W/2,360);
+
+  // Linha separadora
+  ctx.strokeStyle='rgba(255,255,255,0.1)';
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(80,400);ctx.lineTo(W-80,400);ctx.stroke();
+
+  // Número de perfumes
+  ctx.font='bold 86px Montserrat, sans-serif';
+  ctx.fillStyle='#FFFFFF';
+  ctx.fillText(col.length,W/2,510);
+
+  ctx.font='500 28px DM Sans, sans-serif';
+  ctx.fillStyle='rgba(240,240,240,0.55)';
+  ctx.fillText(`perfume${col.length!==1?'s':''} na coleção`,W/2,558);
+
+  // Conquistas desbloqueadas
+  const famsColeção=new Set(col.filter(p=>p.familia).map(p=>p.familia));
+  const desbloq=[...famsColeção].length;
+  if(desbloq>0){
+    ctx.font='500 24px DM Sans, sans-serif';
+    ctx.fillStyle='rgba(240,240,240,0.4)';
+    ctx.fillText(`${desbloq} famíl${desbloq>1?'ias':'ia'} olfativa${desbloq>1?'s':''} explorada${desbloq>1?'s':''}`,W/2,615);
+  }
+
+  // Barra progresso
+  const proximo=NIVEIS.find(v=>v.min>calcNivel(col.length).min);
+  if(proximo){
+    const prog=(col.length-calcNivel(col.length).min)/(proximo.min-calcNivel(col.length).min);
+    ctx.fillStyle='rgba(255,255,255,0.08)';
+    roundRect(ctx,80,660,W-160,12,6);ctx.fill();
+    ctx.fillStyle=nv.cor;
+    roundRect(ctx,80,660,Math.max(12,(W-160)*prog),12,6);ctx.fill();
+    ctx.font='500 20px DM Sans, sans-serif';
+    ctx.fillStyle='rgba(240,240,240,0.35)';
+    ctx.fillText(`${col.length}/${proximo.min} para ${proximo.titulo}`,W/2,702);
+  }
+
+  // Watermark
+  ctx.font='bold 22px Montserrat, sans-serif';
+  ctx.fillStyle='rgba(232,93,4,0.7)';
+  ctx.fillText('🧪 O Perfumista',W/2,880);
+  ctx.font='500 18px DM Sans, sans-serif';
+  ctx.fillStyle='rgba(240,240,240,0.25)';
+  ctx.fillText('operfumista.com.br',W/2,910);
+
+  // Download
+  const a=document.createElement('a');
+  a.download='operfumista-stories.png';
+  a.href=canvas.toDataURL('image/png');
+  a.click();
 }
 
-// ── UPLOAD ──
-async function handleFile(file) {
-  const status = document.getElementById('upload-status');
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (!['pdf','txt','doc','docx'].includes(ext)) {
-    status.textContent = '⚠️ Use PDF, TXT ou Word.';
-    status.className = 'upload-status err'; return;
-  }
-  status.textContent = '⏳ Lendo arquivo...';
-  status.className = 'upload-status loading';
-
-  try {
-    let texto = ext === 'pdf' ? await extrairTextoPDF(file) : await lerComoTexto(file);
-    if (!texto.trim()) throw new Error('vazio');
-
-    const encontrados = parsearPerfumes(texto);
-    if (encontrados.length === 0) throw new Error('nenhum');
-
-    encontrados.forEach(p => { if (!colecao.includes(p)) colecao.push(p); });
-    colecao.sort((a, b) => a.localeCompare(b, 'pt-BR'));
-    renderTags();
-    atualizarSteps();
-    salvarColecaoDebounce();
-    status.textContent = `✅ ${encontrados.length} perfumes importados!`;
-    status.className = 'upload-status ok';
-  } catch(e) {
-    status.textContent = '❌ Não foi possível extrair. Tente um arquivo TXT.';
-    status.className = 'upload-status err';
-  }
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
 }
 
-function parsearPerfumes(texto) {
-  const linhas = texto.split(/[\n\r]+/).map(l => l.trim()).filter(l => l.length > 2);
-  const resultado = [];
-  const reSep = /^(.+?)\s*[–\-—]\s*(.+)$/;
-  linhas.forEach(linha => {
-    if (/^\d+$/.test(linha) || linha.length > 100) return;
-    const m = linha.match(reSep);
-    if (m) {
-      resultado.push(capitalizar(m[2].trim()) + ' — ' + capitalizar(m[1].trim()));
-    } else if (linha.length >= 5 && linha.length <= 80) {
-      resultado.push(capitalizar(linha));
+// ══════ COLEÇÃO ══════
+function cap(s){const m=['de','do','da','dos','das','e','em','a','o','para','com','por'];return s.toLowerCase().split(' ').map((w,i)=>(!i||!m.includes(w))?w[0].toUpperCase()+w.slice(1):w).join(' ');}
+
+function addP(){
+  const inp=document.getElementById('pi'),sel=document.getElementById('cs');
+  const raw=inp.value.trim();if(!raw)return;
+  const nome=cap(raw),conc=sel.value;
+  if(col.some(p=>p.nome===nome)){inp.value='';return;}
+  col.push({nome,conc,familia:null});
+  col.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+  inp.value='';sel.value='';
+  renderCol();renderStats();renderNivel();renderConquistas();deb();
+}
+
+function remP(idx){
+  const filt=col.filter(p=>!srch||p.nome.toLowerCase().includes(srch));
+  col=col.filter(x=>x!==filt[idx]);
+  renderCol();renderStats();renderNivel();renderConquistas();deb();
+}
+
+function renderCol(){
+  const list=document.getElementById('plist'),empty=document.getElementById('es');
+  list.querySelectorAll('.pi').forEach(el=>el.remove());
+  if(!col.length){empty.style.display='block';return;}
+  empty.style.display='none';
+  const filt=col.filter(p=>!srch||p.nome.toLowerCase().includes(srch));
+  if(!filt.length){
+    const el=document.createElement('div');el.className='es';
+    el.innerHTML='<div class="ei">🔍</div><p>Nenhum perfume encontrado.</p>';
+    list.appendChild(el);return;
+  }
+  filt.forEach((p,i)=>{
+    const item=document.createElement('div');item.className='pi';
+    const info=document.createElement('div');
+    const nm=document.createElement('div');nm.className='pn';nm.textContent=p.nome;info.appendChild(nm);
+    if(p.conc||p.familia){
+      const meta=document.createElement('div');meta.className='pmeta';
+      if(p.conc){const pp=document.createElement('span');pp.className='ppill';pp.textContent=p.conc;meta.appendChild(pp);}
+      if(p.familia){
+        const fp=document.createElement('span');fp.className='ppill pf';fp.textContent=p.familia;
+        const cor=FCOR[p.familia];if(cor)fp.style.setProperty('--fc',cor);
+        meta.appendChild(fp);
+      }
+      info.appendChild(meta);
     }
-  });
-  return resultado;
-}
-
-function lerComoTexto(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = e => res(e.target.result);
-    r.onerror = rej;
-    r.readAsText(file, 'utf-8');
+    const br=document.createElement('button');br.className='brm';br.textContent='✕';
+    br.addEventListener('click',()=>remP(i));
+    item.appendChild(info);item.appendChild(br);list.appendChild(item);
   });
 }
 
-async function extrairTextoPDF(file) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-  let txt = '';
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    let ultimoY = null, linha = [];
-    content.items.forEach(item => {
-      const y = Math.round(item.transform[5]);
-      if (ultimoY !== null && Math.abs(y - ultimoY) > 3) { txt += linha.join('') + '\n'; linha = []; }
-      linha.push(item.str);
-      ultimoY = y;
-    });
-    if (linha.length) txt += linha.join('') + '\n';
+function renderStats(){
+  const el=document.getElementById('cst');el.innerHTML='';
+  if(!col.length)return;
+  const cf=col.filter(p=>p.familia).length;
+  const fams=[...new Set(col.filter(p=>p.familia).map(p=>p.familia))];
+  el.innerHTML=`<span class="spc"><span>${col.length}</span> perfume${col.length>1?'s':''}</span>`
+    +(fams.length?`<span class="spc"><span>${fams.length}</span> famíl${fams.length>1?'ias':'ia'}</span>`:'')
+    +(col.length-cf>0?`<span class="spc"><span>${col.length-cf}</span> sem família</span>`:'');
+}
+
+// ══════ UPLOAD ══════
+async function handleFile(f){
+  const st=document.getElementById('us');
+  const ext=f.name.split('.').pop().toLowerCase();
+  if(!['pdf','txt','doc','docx'].includes(ext)){st.textContent='⚠️ Use PDF, TXT ou Word.';st.className='us er';return;}
+  st.textContent='⏳ Lendo...';st.className='us ld';
+  try{
+    const txt=ext==='pdf'?await pdfTxt(f):await lerTxt(f);
+    if(!txt.trim())throw 0;
+    const enc=parsePerf(txt);if(!enc.length)throw 0;
+    let nv=0;
+    enc.forEach(nome=>{if(!col.some(p=>p.nome===nome)){col.push({nome,conc:'',familia:null});nv++;}});
+    col.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+    renderCol();renderStats();renderNivel();renderConquistas();deb();
+    st.textContent=`✅ ${nv} perfumes importados!`;st.className='us ok';
+  }catch(_){st.textContent='❌ Não foi possível extrair.';st.className='us er';}
+}
+function parsePerf(txt){
+  const re=/^(.+?)\s*[–\-—]\s*(.+)$/;
+  return txt.split(/[\n\r]+/).map(l=>l.trim()).filter(l=>l.length>2&&l.length<100&&!/^\d+$/.test(l)).map(l=>{
+    const m=l.match(re);return m?cap(m[2].trim())+' — '+cap(m[1].trim()):cap(l);
+  });
+}
+function lerTxt(f){return new Promise((r,j)=>{const rd=new FileReader();rd.onload=e=>r(e.target.result);rd.onerror=j;rd.readAsText(f,'utf-8');});}
+async function pdfTxt(f){
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
+  let txt='';
+  for(let i=1;i<=pdf.numPages;i++){
+    const pg=await pdf.getPage(i);const ct=await pg.getTextContent();
+    let uy=null,ln=[];
+    ct.items.forEach(it=>{const y=Math.round(it.transform[5]);if(uy!==null&&Math.abs(y-uy)>3){txt+=ln.join('')+'\n';ln=[];}ln.push(it.str);uy=y;});
+    if(ln.length)txt+=ln.join('')+'\n';
   }
   return txt;
 }
 
-// ── ANALISAR ──
-async function analisar() {
-  const errEl = document.getElementById('error-msg');
-  if (colecao.length === 0) { errEl.classList.add('show'); return; }
-  errEl.classList.remove('show');
-
-  novasCount = 0;
-  perfumesJaSugeridos = [];
-  await buscarSugestoes(true);
+// ══════ ANÁLISE ══════
+async function analisar(){
+  const em=document.getElementById('emsg');
+  if(!col.length){em.textContent='⚠️ Adicione pelo menos 1 perfume à coleção.';em.classList.add('sh');return;}
+  em.classList.remove('sh');
+  novasN=0;jaSug=[];famBase={};naoClass=[];classExtras={};
+  await buscar(true);
 }
+async function novas(){if(novasN>=3)return;novasN++;await buscar(false);}
 
-async function novasSugestoes() {
-  if (novasCount >= 3) return;
-  novasCount++;
-  await buscarSugestoes(false);
-}
+async function buscar(prim){
+  const ct=ctxs.length>0?ctxs.join(', '):'não especificado';
+  const ig=document.getElementById('ig').value.trim();
+  const tk=document.getElementById('tt').value.trim();
+  const nr=jaSug.length>0?`\nNÃO REPITA: ${jaSug.join(', ')}`:'';
+  const climaInfo=perfil.clima?`\nClima: ${perfil.clima}`:'';
+  const idadeInfo=perfil.idade?`\nFaixa etária: ${perfil.idade}`:'';
 
-async function buscarSugestoes(primeiraVez) {
-  const ctxStr    = contextos.length > 0 ? contextos.join(', ') : 'não especificado';
-  const budgetStr = budget || 'não informado';
-  const instagram = document.getElementById('instagram').value.trim();
-  const tiktok    = document.getElementById('tiktok').value.trim();
+  const prompt=`PERFIL:
+Orçamento: ${budget||perfil.budget||'não informado'}
+Contextos: ${ct}${climaInfo}${idadeInfo}
+${extraCtx?'Extra: '+extraCtx:''}
 
-  const naoRepetir = perfumesJaSugeridos.length > 0
-    ? `\nNÃO REPITA ESTES PERFUMES JÁ SUGERIDOS: ${perfumesJaSugeridos.join(', ')}`
-    : '';
+COLEÇÃO (${col.length} perfumes):
+${col.map((p,i)=>`${i+1}. ${p.nome}${p.conc?' '+p.conc:''}${p.familia?' ['+p.familia+']':''}`).join('\n')}
 
-  const diagnostico = `
-PERFIL DO USUÁRIO:
-Orçamento: ${budgetStr}
-Contextos: ${ctxStr}
-${extraContexto ? 'Contexto adicional: ' + extraContexto : ''}
+REGRAS: perfumes disponíveis no Brasil 2025, NUNCA descontinuados, respeite orçamento, NUNCA sugira da coleção existente.${nr}
 
-COLEÇÃO ATUAL (${colecao.length} perfumes):
-${colecao.map((p,i) => `${i+1}. ${p}`).join('\n')}
+${prim?'DIAGNÓSTICO: 3-4 frases sobre famílias dominantes, estilo e gaps.':'DIAGNÓSTICO: string vazia.'}
 
-REGRAS:
-- Apenas perfumes disponíveis no Brasil em 2025
-- NUNCA sugira perfumes descontinuados
-- Foque em perfumes com reconhecimento de mercado
-- Respeite o orçamento: ${budgetStr}
-- NUNCA sugira perfumes que o usuário já possui${naoRepetir}
+Identifique 3 famílias com menos perfumes. Para cada uma, sugira 3 opções de marcas diferentes.
 
-PARTE 1 — DIAGNÓSTICO (apenas na primeira análise):
-${primeiraVez ? 'Escreva 3-4 frases identificando famílias dominantes, estilo, pontos fortes e gaps.' : 'Omita o diagnóstico, retorne string vazia.'}
+JSON PURO SEM MARKDOWN:
+{"diagnostico":"","analise_colecao":{"perfumes_por_familia":{"Fresco/Cítrico":0,"Aromático/Verde":0,"Doce/Gourmand":0,"Amadeirado":0,"Especiado/Oriental":0,"Aquático/Mineral":0,"Talco/Fougère":0,"Floral":0,"Frutado":0},"nao_classificados":["nome1"],"top3_faltando":["f1","f2","f3"]},"sugestoes_por_familia":[{"familia":"Nome","opcoes":[{"nome":"P","concentracao":"EDP","faixa_preco":"R$x-y","por_que":"j","quando_usar":"o"},{"nome":"P","concentracao":"EDT","faixa_preco":"R$x-y","por_que":"j","quando_usar":"o"},{"nome":"P","concentracao":"EDP","faixa_preco":"R$x-y","por_que":"j","quando_usar":"o"}]}]}`;
 
-PARTE 2 — EXECUTE O CHECKLIST DE FAMÍLIAS:
-Identifique as 3 famílias com MENOS ou ZERO perfumes na coleção.
-Para cada uma dessas 3 famílias lacunares, sugira EXATAMENTE 3 opções de perfumes diferentes (total: até 9 perfumes).
-Cada opção deve ser de uma marca diferente das outras dentro da mesma família.
-
-FORMATO JSON PURO SEM MARKDOWN:
-{
-  "diagnostico": "texto ou string vazia",
-  "analise_colecao": {
-    "perfumes_por_familia": {"Fresco/Cítrico":0,"Aromático/Verde":0,"Doce/Gourmand":0,"Amadeirado":0,"Especiado/Oriental":0,"Aquático/Mineral":0,"Talco/Fougère":0,"Floral":0,"Frutado":0},
-    "nao_classificados": ["Perfume X","Perfume Y"],
-    "familia_dominante": "nome",
-    "top3_faltando": ["f1","f2","f3"]
-  },
-  "sugestoes_por_familia": [
-    {
-      "familia": "Nome da Família",
-      "opcoes": [
-        {"nome":"Perfume 1","concentracao":"EDP","faixa_preco":"R$x-y","por_que":"justificativa","quando_usar":"ocasião"},
-        {"nome":"Perfume 2","concentracao":"EDT","faixa_preco":"R$x-y","por_que":"justificativa","quando_usar":"ocasião"},
-        {"nome":"Perfume 3","concentracao":"EDP","faixa_preco":"R$x-y","por_que":"justificativa","quando_usar":"ocasião"}
-      ]
-    }
-  ]
-}`;
-
-  if (primeiraVez) {
-    document.getElementById('form-section').style.display = 'none';
-    document.getElementById('loading-section').classList.add('show');
-  } else {
-    document.getElementById('loading-title').textContent = 'Buscando novas sugestões...';
-    document.getElementById('loading-section').classList.add('show');
-    document.getElementById('result-section').classList.remove('show');
-  }
-
-  try {
-    const res = await fetch('https://operfumista-api.vercel.app/api/perfumista', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ diagnostico })
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    renderResultado(data, { instagram, tiktok }, primeiraVez);
-  } catch(err) {
-    console.error(err);
-    document.getElementById('loading-section').classList.remove('show');
-    if (primeiraVez) {
-      document.getElementById('form-section').style.display = 'block';
-      document.getElementById('error-msg').textContent = '⚠️ Erro ao conectar. Tente novamente.';
-      document.getElementById('error-msg').classList.add('show');
-    } else {
-      document.getElementById('result-section').classList.add('show');
-    }
+  document.getElementById('lt2').textContent=prim?'Analisando sua coleção...':'Buscando novas sugestões...';
+  document.getElementById('lo').classList.add('sh');
+  try{
+    const res=await fetch('https://operfumista-api.vercel.app/api/perfumista',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({diagnostico:prompt})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    renderR(await res.json(),{ig,tk},prim);
+  }catch(e){
+    console.error(e);
+    document.getElementById('lo').classList.remove('sh');
+    document.getElementById('emsg').textContent='⚠️ Erro ao conectar. Tente novamente.';
+    document.getElementById('emsg').classList.add('sh');
   }
 }
 
-// ── RENDER ──
-function renderResultado(data, social, primeiraVez) {
-  document.getElementById('loading-section').classList.remove('show');
-  document.getElementById('loading-title').textContent = 'Analisando sua coleção...';
-
-  // Diagnóstico (só na primeira vez)
-  if (primeiraVez && data.diagnostico) {
-    ultimoDiagnostico = data.diagnostico;
-    const frases = data.diagnostico.split(/(?<=[.!?])\s+/).map(f => f.trim()).filter(f => f.length > 4);
-    const diagEl = document.getElementById('diag-text');
-    diagEl.innerHTML = '';
-    if (frases.length > 1) {
-      const ul = document.createElement('ul');
-      ul.className = 'diag-bullets';
-      frases.forEach(f => {
-        const li = document.createElement('li');
-        li.className = 'diag-bullet';
-        li.textContent = f;
-        ul.appendChild(li);
-      });
-      diagEl.appendChild(ul);
-    } else {
-      diagEl.textContent = data.diagnostico;
-    }
-    document.getElementById('result-sub').textContent =
-      `${colecao.length} perfume${colecao.length>1?'s':''} analisado${colecao.length>1?'s':''}`;
+// ══════ RENDER RESULTADO ══════
+function renderR(data,social,prim){
+  document.getElementById('lo').classList.remove('sh');
+  if(prim&&data.diagnostico){
+    const frases=data.diagnostico.split(/(?<=[.!?])\s+/).map(f=>f.trim()).filter(f=>f.length>4);
+    const el=document.getElementById('dct');el.innerHTML='';
+    if(frases.length>1){const ul=document.createElement('ul');ul.className='dblist';frases.forEach(f=>{const li=document.createElement('li');li.className='dbli';li.textContent=f;ul.appendChild(li);});el.appendChild(ul);}
+    else el.textContent=data.diagnostico;
+    document.getElementById('rsub').textContent=`${col.length} perfume${col.length>1?'s':''} analisado${col.length>1?'s':''}`;
   }
-
-  // Gráfico (só na primeira vez)
-  if (primeiraVez && data.analise_colecao?.perfumes_por_familia) {
-    familiasBase = Object.assign({}, data.analise_colecao.perfumes_por_familia);
-    classificacoesExtras = {};
-    // Detecta não classificados: total coleção - soma das famílias
-    const totalClassif = Object.values(familiasBase).reduce((a,b) => a+b, 0);
-    const totalColecao = colecao.length;
-    naoClassificados = totalColecao > totalClassif
-      ? colecao.slice(totalClassif).map(nome => ({ nome }))  // fallback posicional
-      : [];
-    // Se a API retornou lista explícita, usa ela
-    if (data.analise_colecao.nao_classificados?.length > 0) {
-      naoClassificados = data.analise_colecao.nao_classificados.map(nome => ({ nome }));
-    }
-    renderGrafico(familiasBase);
-    renderNaoClassificados();
+  if(prim&&data.analise_colecao?.perfumes_por_familia){
+    famBase={...data.analise_colecao.perfumes_por_familia};classExtras={};
+    naoClass=(data.analise_colecao.nao_classificados||[]).map(n=>({nome:n}));
+    renderG(famBase);renderNC();
   }
-
-  // Sugestões por família
-  const sugestoes = data.sugestoes_por_familia || [];
-
-  // Rastreia perfumes sugeridos para não repetir
-  sugestoes.forEach(bloco => {
-    bloco.opcoes?.forEach(op => {
-      if (!perfumesJaSugeridos.includes(op.nome)) perfumesJaSugeridos.push(op.nome);
+  const sugs=data.sugestoes_por_familia||[];
+  sugs.forEach(b=>b.opcoes?.forEach(op=>{if(!jaSug.includes(op.nome))jaSug.push(op.nome);}));
+  const cont=document.getElementById('sct');cont.innerHTML='';
+  sugs.forEach((bloco,bi)=>{
+    const d=document.createElement('div');d.className='fblk';
+    d.innerHTML=`<div class="fblkh"><span class="fpill">Lacuna</span>${bloco.familia}<span class="fhint">escolha 1</span></div><div class="opcg" id="og${bi}"></div>`;
+    cont.appendChild(d);
+    const g=d.querySelector('#og'+bi);
+    (bloco.opcoes||[]).forEach((op,oi)=>{
+      const c=document.createElement('div');c.className='oc';
+      c.innerHTML=`<div class="ocnum">${oi+1}</div><div><div class="ocnm">${op.nome} <span class="occ">${op.concentracao||''}</span></div><div class="ocm">${op.por_que}</div><div class="octg">${op.quando_usar?`<span>${op.quando_usar}</span>`:''} ${op.faixa_preco?`<span>${op.faixa_preco}</span>`:''}</div></div><div class="ocr"></div>`;
+      c.addEventListener('click',()=>{g.querySelectorAll('.oc').forEach(x=>x.classList.remove('sl2'));c.classList.add('sl2');});
+      g.appendChild(c);
     });
   });
+  const rest=3-novasN;
+  document.getElementById('bnov').disabled=novasN>=3;
+  document.getElementById('nit').textContent=novasN>=3?'Limite atingido.':`Mais ${rest} vez${rest>1?'es':''} disponíveis.`;
+  salvarAnalise(data,social).catch(()=>{});
+  document.getElementById('rw').classList.add('sh');
+  document.querySelector('.tc')?.scrollTo({top:9999,behavior:'smooth'});
+}
 
-  const container = document.getElementById('sugestoes-container');
-  container.innerHTML = '';
+// ══════ GRÁFICO ══════
+function renderG(fams){
+  const labels=Object.keys(fams).filter(k=>fams[k]>0);
+  const vals=labels.map(k=>fams[k]);
+  const cors=labels.map(k=>FCOR[k]||'#E85D04');
+  document.getElementById('cc').classList.remove('h');
+  if(chart)chart.destroy();
+  chart=new Chart(document.getElementById('pc'),{
+    type:'doughnut',
+    data:{labels,datasets:[{data:vals,backgroundColor:cors,borderWidth:2,borderColor:'#181818',hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw}`}}}}
+  });
+  const leg=document.getElementById('clg');leg.innerHTML='';
+  labels.forEach((l,i)=>{
+    const r=document.createElement('div');r.className='lr';
+    r.innerHTML=`<span class="ld" style="background:${cors[i]}"></span><span>${l}</span><span class="lv">${vals[i]}</span>`;
+    leg.appendChild(r);
+  });
+}
 
-  sugestoes.forEach((bloco, bi) => {
-    const div = document.createElement('div');
-    div.className = 'familia-block';
-    div.innerHTML = `
-      <div class="familia-header">
-        <span class="familia-tag">Lacuna</span>
-        ${bloco.familia}
-        <span class="familia-lacuna">escolha 1</span>
-      </div>
-      <div class="opcoes-grid" id="opcoes-${bi}"></div>`;
-    container.appendChild(div);
-
-    const grid = div.querySelector(`#opcoes-${bi}`);
-    (bloco.opcoes || []).forEach((op, oi) => {
-      const card = document.createElement('div');
-      card.className = 'opcao-card';
-      card.style.animationDelay = `${(bi*3+oi)*0.07}s`;
-      card.innerHTML = `
-        <div class="opcao-num">${oi+1}</div>
-        <div>
-          <div class="opcao-nome">${op.nome} <span class="opcao-conc">${op.concentracao||''}</span></div>
-          <div class="opcao-motivo">${op.por_que}</div>
-          <div class="opcao-tags">
-            ${op.quando_usar?`<span class="opcao-tag">${op.quando_usar}</span>`:''}
-            ${op.faixa_preco?`<span class="opcao-tag">${op.faixa_preco}</span>`:''}
-          </div>
-        </div>
-        <div class="opcao-radio"></div>`;
-
-      card.addEventListener('click', () => {
-        grid.querySelectorAll('.opcao-card').forEach(c => c.classList.remove('selecionada'));
-        card.classList.add('selecionada');
-      });
-      grid.appendChild(card);
+// ══════ NÃO CLASSIFICADOS ══════
+function renderNC(){
+  const w=document.getElementById('ncwrap');
+  if(!naoClass||!naoClass.length){w.classList.add('h');return;}
+  w.classList.remove('h');
+  document.getElementById('ncbg').textContent=naoClass.length;
+  document.getElementById('ncl').textContent=`${naoClass.length} perfume${naoClass.length>1?'s':''} não classificado${naoClass.length>1?'s':''}`;
+  const list=document.getElementById('nclist');list.innerHTML='';
+  naoClass.forEach(({nome})=>{
+    const item=document.createElement('div');item.className='nci';
+    const n=document.createElement('span');n.className='ncn';n.textContent=nome;
+    const s=document.createElement('select');s.className='ncsel';
+    s.innerHTML='<option value="">— família —</option>'+FAMS.map(f=>`<option value="${f}">${f}</option>`).join('');
+    if(classExtras[nome]){s.value=classExtras[nome];s.classList.add('dn');}
+    s.addEventListener('change',()=>{
+      if(s.value){classExtras[nome]=s.value;s.classList.add('dn');}
+      else{delete classExtras[nome];s.classList.remove('dn');}
+      progNC();
     });
+    item.appendChild(n);item.appendChild(s);list.appendChild(item);
   });
-
-  // Botão novas sugestões
-  const restantes = 3 - novasCount;
-  const btnNovas  = document.getElementById('btn-novas');
-  const countEl   = document.getElementById('novas-count');
-
-  if (novasCount >= 3) {
-    btnNovas.disabled = true;
-    countEl.textContent = 'Limite de novas sugestões atingido.';
-  } else {
-    btnNovas.disabled = false;
-    countEl.textContent = `Você pode pedir novas sugestões mais ${restantes} vez${restantes>1?'es':''}`;
-  }
-
-  // Salvar análise
-  salvarAnalise(data, social).catch(e => console.warn('Supabase:', e));
-
-  document.getElementById('result-section').classList.add('show');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  progNC();
+}
+function progNC(){
+  const f=Object.keys(classExtras).length,t=naoClass.length;
+  document.getElementById('ncprog').innerHTML=f>0?`<span>${f}</span> de ${t} classificado${f>1?'s':''}` :'';
+  document.getElementById('batu').disabled=f===0;
+}
+function aplicar(){
+  const upd={...famBase};
+  Object.values(classExtras).forEach(fam=>{upd[fam]=(upd[fam]||0)+1;});
+  Object.entries(classExtras).forEach(([nome,fam])=>{
+    const p=col.find(x=>x.nome===nome||nome.includes(x.nome)||x.nome.includes(nome));
+    if(p){p.familia=fam;}
+  });
+  naoClass=naoClass.filter(({nome})=>!classExtras[nome]);
+  famBase=upd;classExtras={};
+  renderG(upd);renderNC();renderCol();renderStats();renderConquistas();deb();
+  document.getElementById('ncbd').classList.remove('op');
+  document.getElementById('nchv').classList.remove('op');
 }
 
-// ── GRÁFICO ──
-function renderGrafico(familias) {
-  const labels  = Object.keys(familias).filter(k => familias[k] > 0);
-  const valores = labels.map(k => familias[k]);
-  const cores   = labels.map(k => FAMILIA_CORES[k] || '#E85D04');
-
-  document.getElementById('chart-card').style.display = 'block';
-  if (pizzaChartInstance) pizzaChartInstance.destroy();
-
-  pizzaChartInstance = new Chart(document.getElementById('pizza-chart'), {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data: valores, backgroundColor: cores, borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }] },
-    options: {
-      responsive: true, maintainAspectRatio: true, cutout: '55%',
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} perfume${ctx.raw>1?'s':''}` } }
-      }
-    }
-  });
-
-  const legendEl = document.getElementById('chart-legend');
-  legendEl.innerHTML = '';
-  labels.forEach((l, i) => {
-    const item = document.createElement('div');
-    item.className = 'legend-item';
-    item.innerHTML = `<span class="legend-dot" style="background:${cores[i]}"></span><span>${l}</span><span class="legend-val">${valores[i]}</span>`;
-    legendEl.appendChild(item);
-  });
+// ══════ SALVAR ANÁLISE ══════
+async function salvarAnalise(data,s){
+  if(!user)return;
+  await DB.from('analises').insert({user_id:user.id,instagram:s.ig||null,tiktok:s.tk||null,colecao:col,orcamento:budget,contextos:ctxs,sugestoes:data.sugestoes_por_familia||[],diagnostico:data.diagnostico||''});
 }
 
-// ── NÃO CLASSIFICADOS ──
-const FAMILIAS_LISTA = ['Fresco/Cítrico','Aromático/Verde','Doce/Gourmand','Amadeirado','Especiado/Oriental','Aquático/Mineral','Talco/Fougère','Floral','Frutado'];
-
-function renderNaoClassificados() {
-  const card = document.getElementById('naoclass-card');
-  if (!naoClassificados || naoClassificados.length === 0) {
-    card.style.display = 'none';
-    return;
-  }
-  card.style.display = 'block';
-  document.getElementById('naoclass-badge').textContent = naoClassificados.length;
-  document.getElementById('naoclass-titulo').textContent =
-    `${naoClassificados.length} perfume${naoClassificados.length>1?'s':''} não classificado${naoClassificados.length>1?'s':''}`;
-
-  const lista = document.getElementById('naoclass-lista');
-  lista.innerHTML = '';
-
-  naoClassificados.forEach(({ nome }) => {
-    const item = document.createElement('div');
-    item.className = 'naoclass-item';
-
-    const nomeEl = document.createElement('span');
-    nomeEl.className = 'naoclass-nome';
-    nomeEl.textContent = nome;
-
-    const sel = document.createElement('select');
-    sel.className = 'naoclass-select';
-    sel.innerHTML = '<option value="">— selecionar família —</option>' +
-      FAMILIAS_LISTA.map(f => `<option value="${f}">${f}</option>`).join('');
-
-    // Restaura se já classificou antes
-    if (classificacoesExtras[nome]) {
-      sel.value = classificacoesExtras[nome];
-      sel.classList.add('classificado');
-    }
-
-    sel.addEventListener('change', () => {
-      if (sel.value) {
-        classificacoesExtras[nome] = sel.value;
-        sel.classList.add('classificado');
-      } else {
-        delete classificacoesExtras[nome];
-        sel.classList.remove('classificado');
-      }
-      atualizarProgressoNaoClass();
-    });
-
-    item.appendChild(nomeEl);
-    item.appendChild(sel);
-    lista.appendChild(item);
-  });
-
-  atualizarProgressoNaoClass();
-}
-
-function atualizarProgressoNaoClass() {
-  const total = naoClassificados.length;
-  const feitos = Object.keys(classificacoesExtras).length;
-  const prog = document.getElementById('naoclass-progress');
-  const btn  = document.getElementById('btn-atualizar');
-
-  if (feitos === 0) {
-    prog.innerHTML = '';
-    btn.disabled = true;
-  } else {
-    prog.innerHTML = `<span>${feitos}</span> de ${total} classificado${feitos>1?'s':''}`;
-    btn.disabled = false;
-  }
-}
-
-function aplicarClassificacoes() {
-  if (Object.keys(classificacoesExtras).length === 0) return;
-
-  // Merge: familiasBase + classificacoesExtras
-  const familiasAtualizadas = Object.assign({}, familiasBase);
-  Object.values(classificacoesExtras).forEach(familia => {
-    familiasAtualizadas[familia] = (familiasAtualizadas[familia] || 0) + 1;
-  });
-
-  // Remove os classificados da lista de não classificados
-  naoClassificados = naoClassificados.filter(({ nome }) => !classificacoesExtras[nome]);
-
-  // Atualiza familiasBase para refletir as novas classificações
-  familiasBase = familiasAtualizadas;
-  classificacoesExtras = {};
-
-  renderGrafico(familiasAtualizadas);
-  renderNaoClassificados();
-
-  // Fecha o accordion
-  document.getElementById('naoclass-body').classList.remove('open');
-  document.getElementById('naoclass-chevron').classList.remove('open');
-}
-
-
-async function salvarAnalise(data, social) {
-  if (!currentUser) return;
-  await supa.from('analises').insert({
-    user_id: currentUser.id,
-    instagram: social.instagram || null,
-    tiktok: social.tiktok || null,
-    colecao: colecao,
-    orcamento: budget,
-    contextos: contextos,
-    sugestoes: data.sugestoes_por_familia || [],
-    diagnostico: data.diagnostico || '',
-    created_at: new Date().toISOString()
-  });
-}
-
-// ── RESET ──
-function resetar() {
-  budget = ''; contextos = []; extraContexto = '';
-  novasCount = 0; perfumesJaSugeridos = [];
-  familiasBase = {}; naoClassificados = []; classificacoesExtras = {};
-  document.getElementById('naoclass-card').style.display = 'none';
-  document.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
-  document.getElementById('instagram').value = '';
-  document.getElementById('tiktok').value = '';
-  document.getElementById('lgpd-check').checked = false;
-  document.getElementById('btn-submit').disabled = true;
-  document.getElementById('upload-status').textContent = '';
-  document.getElementById('upload-status').className = 'upload-status';
-  document.getElementById('file-input').value = '';
-  document.getElementById('conc-select').value = '';
-  document.getElementById('chart-card').style.display = 'none';
-  if (pizzaChartInstance) { pizzaChartInstance.destroy(); pizzaChartInstance = null; }
-  document.getElementById('chart-legend').innerHTML = '';
-  document.getElementById('sugestoes-container').innerHTML = '';
-  document.getElementById('diag-text').innerHTML = '';
-  document.getElementById('result-section').classList.remove('show');
-  document.getElementById('form-section').style.display = 'block';
-  document.getElementById('error-msg').classList.remove('show');
-  atualizarSteps();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+// ══════ RESET ══════
+function resetar(){
+  budget='';ctxs=[];extraCtx='';novasN=0;jaSug=[];famBase={};naoClass=[];classExtras={};
+  document.querySelectorAll('.obt').forEach(o=>o.classList.remove('sl'));
+  document.getElementById('ig').value='';document.getElementById('tt').value='';
+  document.getElementById('lc').checked=false;document.getElementById('ban').disabled=true;
+  document.getElementById('cc').classList.add('h');
+  if(chart){chart.destroy();chart=null;}
+  document.getElementById('clg').innerHTML='';
+  document.getElementById('ncwrap').classList.add('h');
+  document.getElementById('sct').innerHTML='';document.getElementById('dct').innerHTML='';
+  document.getElementById('rw').classList.remove('sh');document.getElementById('emsg').classList.remove('sh');
+  document.querySelector('.tc')?.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
 </body>
