@@ -1,1 +1,1 @@
-# avalia-o-de-colecoes
+# avaliador-de-colecoes
