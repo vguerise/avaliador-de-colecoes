@@ -305,10 +305,8 @@
 
       <!-- Entrada manual -->
       <div class="input-row">
-        <input type="text" id="perf-input"
-               placeholder="Nome do perfume e marca..."
-               onkeypress="if(event.key==='Enter'){event.preventDefault();addPerfume()}">
-        <button class="btn-add" onclick="addPerfume()" title="Adicionar">+</button>
+        <input type="text" id="perf-input" placeholder="Nome do perfume e marca...">
+        <button class="btn-add" id="btn-add" title="Adicionar">+</button>
       </div>
       <div class="conc-row">
         <select class="conc-select" id="conc-select">
@@ -324,12 +322,8 @@
       <div class="or-divider"><span>ou anexe um arquivo</span></div>
 
       <!-- Upload -->
-      <div class="upload-area" id="upload-area"
-           ondragover="event.preventDefault();this.classList.add('dragover')"
-           ondragleave="this.classList.remove('dragover')"
-           ondrop="handleDrop(event)">
-        <input type="file" id="file-input" accept=".pdf,.txt,.doc,.docx,.pages"
-               onchange="handleFile(this.files[0])">
+      <div class="upload-area" id="upload-area">
+        <input type="file" id="file-input" accept=".pdf,.txt,.doc,.docx,.pages">
         <span class="upload-icon">📂</span>
         <span class="upload-label">Clique para anexar ou arraste o arquivo</span>
         <span class="upload-sub">PDF, Word, TXT, Notes — a I.A. extrai os perfumes automaticamente</span>
@@ -348,15 +342,15 @@
       <div class="form-card-title">💰 Orçamento para o Próximo Perfume</div>
       <div class="form-card-sub">A I.A. respeita sua faixa de preço nas sugestões.</div>
       <div class="opt-grid budget-grid-3" id="budget-grid">
-        <div class="opt" onclick="selBudget(this,'até R$350')">
+        <div class="opt" data-budget="até R$350">
           <span class="v">até R$350</span>
           <span class="l">Entrada</span>
         </div>
-        <div class="opt" onclick="selBudget(this,'R$350 a R$1.500')">
+        <div class="opt" data-budget="R$350 a R$1.500">
           <span class="v">R$350–1.500</span>
           <span class="l">Intermediário</span>
         </div>
-        <div class="opt" onclick="selBudget(this,'acima de R$1.500')">
+        <div class="opt" data-budget="acima de R$1.500">
           <span class="v">R$1.500+</span>
           <span class="l">Nicho</span>
         </div>
@@ -368,16 +362,16 @@
       <div class="form-card-title">🎯 Quando Você Mais Usa Perfume?</div>
       <div class="form-card-sub">Selecione quantos quiser. Direciona as sugestões.</div>
       <div class="opt-grid two">
-        <div class="opt" onclick="togCtx(this,'Trabalho / Dia a dia')">
+        <div class="opt ctx-opt" data-ctx="Trabalho / Dia a dia">
           <span class="emo">💼</span><span class="v">Trabalho</span><span class="l">Dia a dia</span>
         </div>
-        <div class="opt" onclick="togCtx(this,'Encontros / Social')">
+        <div class="opt ctx-opt" data-ctx="Encontros / Social">
           <span class="emo">🍷</span><span class="v">Encontros</span><span class="l">Social</span>
         </div>
-        <div class="opt" onclick="togCtx(this,'Noite / Balada')">
+        <div class="opt ctx-opt" data-ctx="Noite / Balada">
           <span class="emo">🌙</span><span class="v">Noite</span><span class="l">Balada</span>
         </div>
-        <div class="opt" onclick="togCtx(this,'Casual / Final de semana')">
+        <div class="opt ctx-opt" data-ctx="Casual / Final de semana">
           <span class="emo">☀️</span><span class="v">Casual</span><span class="l">Final de semana</span>
         </div>
       </div>
@@ -399,18 +393,17 @@
       </div>
     </div>
 
-    <!-- LGPD -->
     <div class="lgpd-box">
-      <input type="checkbox" id="lgpd-check" onchange="toggleSubmit()">
+      <input type="checkbox" id="lgpd-check">
       <div class="lgpd-text">
         <strong>Consentimento de uso de dados (LGPD)</strong><br>
-        Concordo que meu Instagram, TikTok, coleção de perfumes e sugestões geradas sejam armazenados por Victor Guerise para fins de análise e melhoria do serviço. Os dados não serão compartilhados com terceiros. Você pode solicitar a exclusão a qualquer momento pelo e-mail <a href="/cdn-cgi/l/email-protection#1e68796b7b6c776d7b5e79737f7772307d7173"><span class="__cf_email__" data-cfemail="84f2e3f1e1f6edf7e1c4e3e9e5ede8aae7ebe9">[email&#160;protected]</span></a>.
+        Concordo que meu Instagram, TikTok, coleção de perfumes e sugestões geradas sejam armazenados por Victor Guerise para fins de análise e melhoria do serviço. Os dados não serão compartilhados com terceiros. Você pode solicitar a exclusão a qualquer momento pelo e-mail <a href="mailto:vguerise@gmail.com">vguerise@gmail.com</a>.
       </div>
     </div>
 
     <div class="error-msg" id="error-msg">⚠️ Adicione pelo menos 1 perfume à sua coleção para continuar.</div>
 
-    <button class="btn-submit" id="btn-submit" onclick="analisar()" disabled>
+    <button class="btn-submit" id="btn-submit" disabled>
       🔍 Analisar Minha Coleção Agora
     </button>
   </div>
@@ -466,7 +459,7 @@
       </div>
     </div>
 
-    <button class="btn-reset" onclick="resetar()">↩ Fazer nova análise</button>
+    <button class="btn-reset" id="btn-reset">↩ Fazer nova análise</button>
   </div>
 </section>
 
@@ -476,17 +469,64 @@
   <a href="https://vguerise.github.io/pv-curso-pratico-da-perfumaria/" target="_blank">Victor Guerise</a>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
   // ── STATE ──
   let colecao = [];
   let budget = '';
   let contextos = [];
-  let extraContexto = ''; // texto extra extraído do arquivo
+  let extraContexto = '';
 
-  // ── LGPD: habilita botão ──
+  // ── BIND EVENTS (sem onclick inline) ──
+  document.getElementById('btn-add').addEventListener('click', addPerfume);
+  document.getElementById('perf-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); addPerfume(); }
+  });
+  document.getElementById('btn-submit').addEventListener('click', analisar);
+  document.getElementById('btn-reset').addEventListener('click', resetar);
+  document.getElementById('lgpd-check').addEventListener('change', function() {
+    document.getElementById('btn-submit').disabled = !this.checked;
+  });
+
+  // Budget
+  document.querySelectorAll('#budget-grid .opt').forEach(function(el) {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('#budget-grid .opt').forEach(o => o.classList.remove('sel'));
+      el.classList.add('sel');
+      budget = el.dataset.budget;
+      atualizarSteps();
+    });
+  });
+
+  // Contexto
+  document.querySelectorAll('.ctx-opt').forEach(function(el) {
+    el.addEventListener('click', function() {
+      const val = el.dataset.ctx;
+      if (el.classList.contains('sel')) {
+        el.classList.remove('sel');
+        contextos = contextos.filter(c => c !== val);
+      } else {
+        el.classList.add('sel');
+        contextos.push(val);
+      }
+    });
+  });
+
+  // Upload
+  const uploadArea = document.getElementById('upload-area');
+  const fileInput = document.getElementById('file-input');
+  uploadArea.addEventListener('dragover', function(e) { e.preventDefault(); uploadArea.classList.add('dragover'); });
+  uploadArea.addEventListener('dragleave', function() { uploadArea.classList.remove('dragover'); });
+  uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault(); uploadArea.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', function() { if (this.files[0]) handleFile(this.files[0]); });
+
+  // ── LGPD: habilita botão ──  (mantido por compatibilidade, já ligado acima)
   function toggleSubmit() {
-    const checked = document.getElementById('lgpd-check').checked;
-    document.getElementById('btn-submit').disabled = !checked;
+    document.getElementById('btn-submit').disabled = !document.getElementById('lgpd-check').checked;
   }
 
   // ── CAPITALIZAR ──
@@ -537,7 +577,14 @@
     colecao.forEach((p, i) => {
       const tag = document.createElement('div');
       tag.className = 'tag';
-      tag.innerHTML = `${p} <span class="tag-x" onclick="remover(${i})">×</span>`;
+      const txt = document.createElement('span');
+      txt.textContent = p;
+      const x = document.createElement('span');
+      x.className = 'tag-x';
+      x.textContent = '×';
+      x.addEventListener('click', function() { remover(i); });
+      tag.appendChild(txt);
+      tag.appendChild(x);
       area.appendChild(tag);
     });
   }
@@ -960,6 +1007,7 @@ FORMATO DE RESPOSTA — JSON PURO SEM MARKDOWN:
   }
 
   // ── RESET ──
+  // ── RESET ──
   function resetar() {
     colecao = []; budget = ''; contextos = []; extraContexto = '';
     renderTags();
@@ -972,4 +1020,17 @@ FORMATO DE RESPOSTA — JSON PURO SEM MARKDOWN:
     document.getElementById('upload-status').className = 'upload-status';
     document.getElementById('file-input').value = '';
     document.getElementById('conc-select').value = '';
-    document.getElementById('c
+    document.getElementById('chart-card').style.display = 'none';
+    if (pizzaChartInstance) { pizzaChartInstance.destroy(); pizzaChartInstance = null; }
+    document.getElementById('chart-legend').innerHTML = '';
+    document.getElementById('result-section').classList.remove('show');
+    document.getElementById('form-section').style.display = 'block';
+    document.getElementById('error-msg').classList.remove('show');
+    atualizarSteps();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+}); // fim DOMContentLoaded
+</script>
+</body>
+</html>
