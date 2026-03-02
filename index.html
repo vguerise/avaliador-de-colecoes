@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Análise de Coleção — O Perfumista</title>
+  <meta name="description" content="Descubra os 3 perfumes certos para completar sua coleção. Análise personalizada com I.A. especializada em perfumaria masculina.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --orange: #E85D04;
+      --orange-light: #F48C06;
+      --orange-dark: #C14B00;
+      --orange-muted: rgba(232,93,4,0.10);
+      --black: #111111;
+      --charcoal: #2D2D2D;
+      --gray-dark: #444444;
+      --gray-mid: #777777;
+      --gray-light: #E8E8E8;
+      --white: #FFFFFF;
+      --off-white: #F8F8F8;
+      --success: #2A9D5C;
+      --danger: #D62828;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--white); color: var(--black); line-height: 1.7; overflow-x: hidden; }
+    h1,h2,h3 { font-family: 'Montserrat', Helvetica, Arial, sans-serif; line-height: 1.2; }
+    .container { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* ── HERO ── */
+    .hero { background: var(--black); text-align: center; padding: 4rem 1.5rem 3.5rem; position: relative; overflow: hidden; }
+    .hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(232,93,4,.18) 0%, transparent 70%); pointer-events: none; }
+    .hero-inner { position: relative; z-index: 2; max-width: 740px; margin: 0 auto; }
+    .hero-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(232,93,4,.15); border: 1px solid rgba(232,93,4,.35); color: var(--orange-light); padding: .45rem 1.1rem; border-radius: 50px; font-size: .78rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.8rem; }
+    .hero h1 { font-size: clamp(1.8rem,4.5vw,2.9rem); font-weight: 900; color: var(--white); line-height: 1.25; margin-bottom: 1.2rem; }
+    .hero h1 .hl { color: var(--orange); }
+    .hero p { font-size: clamp(1rem,2vw,1.15rem); color: rgba(255,255,255,.65); max-width: 580px; margin: 0 auto; }
+    .divider { height: 4px; background: linear-gradient(90deg, transparent, var(--orange), transparent); }
+
+    /* ── FORM ── */
+    .form-section { background: var(--off-white); padding: 3.5rem 0 4rem; }
+    .section-label { display: block; text-align: center; font-size: .72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: .6rem; }
+    .section-title { font-size: clamp(1.6rem,3.5vw,2.2rem); text-align: center; margin-bottom: 2.5rem; color: var(--black); }
+    .section-title em { font-style: normal; color: var(--orange); }
+
+    /* Steps */
+    .steps-bar { display: flex; align-items: center; justify-content: center; margin-bottom: 2.5rem; }
+    .step-item { display: flex; flex-direction: column; align-items: center; gap: .4rem; }
+    .step-circle { width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid var(--gray-light); display: flex; align-items: center; justify-content: center; font-family: 'Montserrat',sans-serif; font-size: .85rem; font-weight: 800; color: var(--gray-mid); background: white; transition: all .3s; }
+    .step-circle.active { border-color: var(--orange); color: var(--orange); }
+    .step-circle.done { border-color: var(--success); background: var(--success); color: white; }
+    .step-label { font-size: .68rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-mid); transition: color .3s; }
+    .step-label.active { color: var(--orange); }
+    .step-label.done { color: var(--success); }
+    .step-connector { height: 2px; width: 52px; background: var(--gray-light); margin: 0 5px 20px; transition: background .3s; }
+    .step-connector.done { background: var(--success); }
+
+    /* Form Card */
+    .form-card { background: white; border: 2px solid var(--gray-light); border-left: 6px solid var(--orange); border-radius: 12px; padding: 2rem 2.2rem; margin-bottom: 1.4rem; transition: box-shadow .2s; }
+    .form-card:focus-within { box-shadow: 0 4px 22px rgba(232,93,4,.12); }
+    .form-card-title { font-size: 1.1rem; font-weight: 800; color: var(--black); margin-bottom: .3rem; }
+    .form-card-sub { font-size: .9rem; color: var(--gray-mid); margin-bottom: 1.4rem; }
+
+    /* Input row */
+    .input-row { display: flex; gap: .7rem; }
+    input[type="text"] { flex: 1; border: 2px solid var(--gray-light); border-radius: 8px; padding: .85rem 1.1rem; font-family: 'DM Sans',sans-serif; font-size: .97rem; color: var(--black); outline: none; transition: border-color .2s; background: white; }
+    input[type="text"]:focus { border-color: var(--orange); }
+    input[type="text"]::placeholder { color: var(--gray-mid); }
+    .btn-add { background: var(--orange); color: white; border: none; border-radius: 8px; padding: .85rem 1.3rem; font-size: 1.4rem; font-weight: 900; cursor: pointer; transition: all .2s; line-height: 1; }
+    .btn-add:hover { background: var(--orange-dark); transform: scale(1.05); }
+
+    /* Divider OR */
+    .or-divider { display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0; }
+    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-light); }
+    .or-divider span { font-size: .78rem; font-weight: 700; color: var(--gray-mid); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+
+    /* File upload */
+    .upload-area {
+      border: 2px dashed var(--gray-light); border-radius: 10px;
+      padding: 1.2rem; text-align: center; cursor: pointer;
+      transition: all .2s; background: var(--off-white); position: relative;
+    }
+    .upload-area:hover { border-color: var(--orange); background: var(--orange-muted); }
+    .upload-area.dragover { border-color: var(--orange); background: var(--orange-muted); }
+    .upload-area.loading-file { border-color: var(--orange); }
+    .upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon { font-size: 1.6rem; display: block; margin-bottom: .4rem; }
+    .upload-label { font-size: .88rem; font-weight: 600; color: var(--charcoal); display: block; margin-bottom: .2rem; }
+    .upload-sub { font-size: .75rem; color: var(--gray-mid); }
+    .upload-status { font-size: .82rem; font-weight: 600; margin-top: .6rem; min-height: 1.2em; }
+    .upload-status.ok { color: var(--success); }
+    .upload-status.err { color: var(--danger); }
+    .upload-status.loading { color: var(--orange); }
+
+    /* Tags */
+    .tags-area { display: flex; flex-wrap: wrap; gap: .5rem; min-height: 36px; margin-top: 1rem; }
+    .tag { background: var(--orange-muted); border: 1.5px solid rgba(232,93,4,.3); color: var(--orange-dark); padding: .4rem .9rem; border-radius: 20px; font-size: .85rem; font-weight: 600; display: flex; align-items: center; gap: .6rem; animation: tagIn .2s ease; }
+    @keyframes tagIn { from { opacity:0;transform:scale(.85); } to { opacity:1;transform:scale(1); } }
+    .tag-x { cursor: pointer; opacity: .5; font-size: 1.05rem; line-height: 1; transition: opacity .2s; }
+    .tag-x:hover { opacity: 1; color: var(--danger); }
+    .tags-empty { font-size: .85rem; color: var(--gray-mid); font-style: italic; margin-top: .4rem; }
+    .count-line { font-size: .8rem; color: var(--gray-mid); margin-top: .7rem; text-align: right; }
+    .count-line span { color: var(--orange); font-weight: 700; }
+
+    /* Options */
+    .opt-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .7rem; }
+    .opt-grid.two { grid-template-columns: repeat(2,1fr); }
+    .opt { border: 2px solid var(--gray-light); border-radius: 10px; padding: 1rem .8rem; text-align: center; cursor: pointer; background: white; transition: all .2s; }
+    .opt:hover { border-color: var(--orange); }
+    .opt.sel { border-color: var(--orange); background: var(--orange-muted); }
+    .opt .v { font-family: 'Montserrat',sans-serif; font-weight: 800; font-size: .9rem; color: var(--black); display: block; }
+    .opt .l { font-size: .72rem; color: var(--gray-mid); margin-top: .2rem; display: block; }
+    .opt.sel .v { color: var(--orange); }
+    .opt.sel .l { color: var(--orange-dark); }
+    .opt .emo { font-size: 1.5rem; display: block; margin-bottom: .3rem; }
+
+    /* Social input */
+    .social-row { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .social-field { position: relative; }
+    .social-prefix { position: absolute; left: .9rem; top: 50%; transform: translateY(-50%); font-weight: 700; color: var(--gray-mid); font-size: .95rem; pointer-events: none; }
+    .social-field input { padding-left: 1.8rem; width: 100%; }
+
+    /* LGPD */
+    .lgpd-box {
+      background: white; border: 2px solid var(--gray-light);
+      border-radius: 10px; padding: 1.2rem 1.5rem;
+      margin-bottom: 1.2rem; display: flex; align-items: flex-start; gap: 1rem;
+    }
+    .lgpd-box input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; margin-top: .15rem; accent-color: var(--orange); cursor: pointer; }
+    .lgpd-text { font-size: .85rem; color: var(--charcoal); line-height: 1.6; }
+    .lgpd-text strong { color: var(--black); }
+    .lgpd-text a { color: var(--orange); text-decoration: none; }
+
+    /* Error / Submit */
+    .error-msg { background: rgba(214,40,40,.07); border: 1.5px solid rgba(214,40,40,.3); border-radius: 8px; padding: .9rem 1.2rem; color: var(--danger); font-size: .9rem; margin-bottom: 1rem; display: none; }
+    .error-msg.show { display: block; }
+
+    .btn-submit {
+      width: 100%; background: var(--orange); color: white; border: none;
+      border-radius: 8px; padding: 1.2rem 2rem;
+      font-family: 'DM Sans',sans-serif; font-size: 1.05rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; transition: all .25s;
+      animation: ctaPulse 2.5s ease-in-out infinite;
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--orange-dark); transform: translateY(-2px); box-shadow: 0 10px 35px rgba(232,93,4,.45); animation: none; }
+    .btn-submit:disabled { opacity: .35; cursor: not-allowed; animation: none; box-shadow: none; transform: none; }
+    @keyframes ctaPulse {
+      0%,100% { box-shadow: 0 0 10px 2px rgba(232,93,4,.4),0 5px 22px rgba(232,93,4,.25); }
+      50% { box-shadow: 0 0 28px 7px rgba(232,93,4,.65),0 8px 38px rgba(232,93,4,.45); }
+    }
+
+    /* ── LOADING ── */
+    .loading-section { display: none; background: var(--off-white); padding: 6rem 1.5rem; text-align: center; }
+    .loading-section.show { display: block; }
+    .loading-icon { font-size: 3rem; display: block; animation: spin 2s linear infinite; margin-bottom: 1.2rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-family: 'Montserrat',sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: .5rem; }
+    .loading-sub { color: var(--gray-mid); font-size: .95rem; }
+    .loading-dots { display: inline-flex; gap: .3rem; margin-top: 1.5rem; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); animation: bounce .8s ease-in-out infinite; }
+    .dot:nth-child(2) { animation-delay: .15s; }
+    .dot:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+    /* ── RESULT ── */
+    .result-section { display: none; background: var(--off-white); padding: 4rem 0; }
+    .result-section.show { display: block; }
+    .result-header { text-align: center; margin-bottom: 2.5rem; }
+    .result-header h2 { font-size: clamp(1.6rem,3.5vw,2.2rem); margin-bottom: .5rem; }
+    .result-header h2 em { font-style: normal; color: var(--orange); }
+    .result-header p { color: var(--gray-mid); font-size: .95rem; }
+
+    .diag-card { background: white; border: 2px solid var(--gray-light); border-left: 6px solid var(--orange); border-radius: 12px; padding: 2rem 2.2rem; margin-bottom: 2rem; }
+    .diag-title { font-size: .78rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: .9rem; }
+    .diag-text { font-size: 1.03rem; color: var(--charcoal); line-height: 1.8; }
+
+    .sug-header { font-family: 'Montserrat',sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--black); margin-bottom: 1.2rem; }
+    .sug-cards { display: grid; gap: 1.1rem; margin-bottom: 2.5rem; }
+    .sug-card { background: white; border: 2px solid var(--gray-light); border-radius: 12px; padding: 1.6rem 1.8rem; display: grid; grid-template-columns: 48px 1fr; gap: 1.2rem; align-items: start; transition: border-color .2s, box-shadow .2s; animation: cardIn .4s ease both; }
+    .sug-card:nth-child(2) { animation-delay: .1s; }
+    .sug-card:nth-child(3) { animation-delay: .2s; }
+    .sug-card:hover { border-color: var(--orange); box-shadow: 0 6px 24px rgba(232,93,4,.1); }
+    @keyframes cardIn { from { opacity:0;transform:translateY(14px); } to { opacity:1;transform:translateY(0); } }
+    .sug-num { width: 48px; height: 48px; border-radius: 50%; background: var(--orange); color: white; font-family: 'Montserrat',sans-serif; font-size: 1.3rem; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sug-name { font-family: 'Montserrat',sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--black); margin-bottom: .15rem; }
+    .sug-conc { font-size: .75rem; font-weight: 600; color: var(--gray-mid); }
+    .sug-familia { font-size: .78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--orange); margin: .3rem 0 .6rem; }
+    .sug-reason { font-size: .93rem; color: var(--charcoal); line-height: 1.65; }
+    .sug-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+    .sug-tag { background: var(--orange-muted); border: 1px solid rgba(232,93,4,.25); color: var(--orange-dark); padding: .25rem .75rem; border-radius: 20px; font-size: .73rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+
+    /* Upsell */
+    .upsell-card { background: var(--black); border-radius: 14px; padding: 2.5rem 2rem; text-align: center; position: relative; overflow: hidden; }
+    .upsell-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(232,93,4,.2) 0%, transparent 65%); pointer-events: none; }
+    .upsell-inner { position: relative; z-index: 2; }
+    .upsell-badge { display: inline-block; background: var(--orange); color: white; font-size: .68rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: .35rem 1rem; border-radius: 20px; margin-bottom: 1.2rem; }
+    .upsell-title { font-size: clamp(1.2rem,2.5vw,1.55rem); color: white; margin-bottom: .9rem; }
+    .upsell-title em { font-style: normal; color: var(--orange); }
+    .upsell-text { color: rgba(255,255,255,.6); font-size: .95rem; line-height: 1.7; margin-bottom: 1.8rem; }
+    .btn-upsell { display: inline-block; background: var(--orange); color: white; font-family: 'DM Sans',sans-serif; font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; padding: 1.1rem 2.5rem; border-radius: 8px; text-decoration: none; transition: all .25s; animation: ctaPulse 2.5s ease-in-out infinite; }
+    .btn-upsell:hover { background: var(--orange-dark); transform: translateY(-2px); animation: none; }
+
+    .btn-reset { display: block; margin: 1.5rem auto 0; background: none; border: none; color: var(--gray-mid); font-family: 'DM Sans',sans-serif; font-size: .88rem; cursor: pointer; transition: color .2s; }
+    .btn-reset:hover { color: var(--orange); }
+
+    /* Footer */
+    .footer { text-align: center; padding: 1.8rem; border-top: 1px solid var(--gray-light); color: var(--gray-mid); font-size: .82rem; }
+    .footer a { color: var(--orange); text-decoration: none; }
+
+    @media (max-width: 560px) {
+      .opt-grid { grid-template-columns: 1fr 1fr; }
+      .social-row { grid-template-columns: 1fr; }
+      .sug-card { grid-template-columns: 40px 1fr; gap: .9rem; }
+      .sug-num { width: 40px; height: 40px; font-size: 1.1rem; }
+      .form-card { padding: 1.4rem 1.2rem; }
+      .step-connector { width: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">🧪 I.A. Especializada em Perfumaria Masculina</div>
+    <h1>Descubra os <span class="hl">3 Perfumes Certos</span><br>para Completar sua Coleção</h1>
+    <p>Informe o que você já tem. A I.A. analisa seu perfil olfativo e indica exatamente o que está faltando — com justificativa real.</p>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- FORM -->
+<section class="form-section" id="form-section">
+  <div class="container">
+    <span class="section-label">Análise Personalizada</span>
+    <h2 class="section-title">Preencha abaixo e <em>receba sua análise em segundos</em></h2>
+
+    <!-- Steps -->
+    <div class="steps-bar">
+      <div class="step-item">
+        <div class="step-circle active" id="sc1">1</div>
+        <div class="step-label active" id="sl1">Coleção</div>
+      </div>
+      <div class="step-connector" id="con1"></div>
+      <div class="step-item">
+        <div class="step-circle" id="sc2">2</div>
+        <div class="step-label" id="sl2">Orçamento</div>
+      </div>
+      <div class="step-connector" id="con2"></div>
+      <div class="step-item">
+        <div class="step-circle" id="sc3">3</div>
+        <div class="step-label" id="sl3">Contexto</div>
+      </div>
+      <div class="step-connector" id="con3"></div>
+      <div class="step-item">
+        <div class="step-circle" id="sc4">4</div>
+        <div class="step-label" id="sl4">Redes</div>
+      </div>
+    </div>
+
+    <!-- CARD 1: Coleção -->
+    <div class="form-card">
+      <div class="form-card-title">💼 Sua Coleção Atual</div>
+      <div class="form-card-sub">Digite perfume a perfume ou anexe um arquivo com sua lista. Mínimo 1 perfume.</div>
+
+      <!-- Entrada manual -->
+      <div class="input-row">
+        <input type="text" id="perf-input"
+               placeholder="Ex: Sauvage Dior EDP, Bleu de Chanel..."
+               onkeypress="if(event.key==='Enter'){event.preventDefault();addPerfume()}">
+        <button class="btn-add" onclick="addPerfume()" title="Adicionar">+</button>
+      </div>
+
+      <!-- Divisor -->
+      <div class="or-divider"><span>ou anexe um arquivo</span></div>
+
+      <!-- Upload -->
+      <div class="upload-area" id="upload-area"
+           ondragover="event.preventDefault();this.classList.add('dragover')"
+           ondragleave="this.classList.remove('dragover')"
+           ondrop="handleDrop(event)">
+        <input type="file" id="file-input" accept=".pdf,.txt,.doc,.docx,.pages"
+               onchange="handleFile(this.files[0])">
+        <span class="upload-icon">📎</span>
+        <span class="upload-label">Clique para anexar ou arraste o arquivo</span>
+        <span class="upload-sub">PDF, Word, TXT, Notes — a I.A. extrai os perfumes automaticamente</span>
+        <div class="upload-status" id="upload-status"></div>
+      </div>
+
+      <!-- Tags -->
+      <div class="tags-area" id="tags-area">
+        <span class="tags-empty" id="tags-empty">Sua coleção aparecerá aqui...</span>
+      </div>
+      <div class="count-line">Perfumes adicionados: <span id="count">0</span></div>
+    </div>
+
+    <!-- CARD 2: Orçamento -->
+    <div class="form-card">
+      <div class="form-card-title">💰 Orçamento para o Próximo Perfume</div>
+      <div class="form-card-sub">A I.A. respeita sua faixa de preço nas sugestões.</div>
+      <div class="opt-grid" id="budget-grid">
+        <div class="opt" onclick="selBudget(this,'até R$350')">
+          <span class="v">até R$350</span>
+          <span class="l">Entrada</span>
+        </div>
+        <div class="opt" onclick="selBudget(this,'R$350 a R$1.500')">
+          <span class="v">R$350–1.500</span>
+          <span class="l">Intermediário</span>
+        </div>
+        <div class="opt" onclick="selBudget(this,'acima de R$1.500')">
+          <span class="v">R$1.500+</span>
+          <span class="l">Nicho</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 3: Contexto -->
+    <div class="form-card">
+      <div class="form-card-title">🎯 Quando Você Mais Usa Perfume?</div>
+      <div class="form-card-sub">Selecione quantos quiser. Direciona as sugestões.</div>
+      <div class="opt-grid two">
+        <div class="opt" onclick="togCtx(this,'Trabalho / Dia a dia')">
+          <span class="emo">💼</span><span class="v">Trabalho</span><span class="l">Dia a dia</span>
+        </div>
+        <div class="opt" onclick="togCtx(this,'Encontros / Social')">
+          <span class="emo">🍷</span><span class="v">Encontros</span><span class="l">Social</span>
+        </div>
+        <div class="opt" onclick="togCtx(this,'Noite / Balada')">
+          <span class="emo">🌙</span><span class="v">Noite</span><span class="l">Balada</span>
+        </div>
+        <div class="opt" onclick="togCtx(this,'Casual / Final de semana')">
+          <span class="emo">☀️</span><span class="v">Casual</span><span class="l">Final de semana</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 4: Redes Sociais -->
+    <div class="form-card">
+      <div class="form-card-title">📱 Redes Sociais <span style="font-size:.8rem;font-weight:500;color:var(--gray-mid)">(opcional)</span></div>
+      <div class="form-card-sub">Informe seu Instagram e/ou TikTok para que possamos personalizar ainda mais as análises futuras.</div>
+      <div class="social-row">
+        <div class="social-field">
+          <span class="social-prefix">@</span>
+          <input type="text" id="instagram" placeholder="instagram">
+        </div>
+        <div class="social-field">
+          <span class="social-prefix">@</span>
+          <input type="text" id="tiktok" placeholder="tiktok">
+        </div>
+      </div>
+    </div>
+
+    <!-- LGPD -->
+    <div class="lgpd-box">
+      <input type="checkbox" id="lgpd-check" onchange="toggleSubmit()">
+      <div class="lgpd-text">
+        <strong>Consentimento de uso de dados (LGPD)</strong><br>
+        Concordo que meu Instagram, TikTok, coleção de perfumes e sugestões geradas sejam armazenados por Victor Guerise para fins de análise e melhoria do serviço. Os dados não serão compartilhados com terceiros. Você pode solicitar a exclusão a qualquer momento pelo e-mail <a href="mailto:contato@victorperfumes.com">contato@victorperfumes.com</a>.
+      </div>
+    </div>
+
+    <div class="error-msg" id="error-msg">⚠️ Adicione pelo menos 1 perfume à sua coleção para continuar.</div>
+
+    <button class="btn-submit" id="btn-submit" onclick="analisar()" disabled>
+      🔍 Analisar Minha Coleção Agora
+    </button>
+  </div>
+</section>
+
+<!-- LOADING -->
+<section class="loading-section" id="loading-section">
+  <div class="container">
+    <span class="loading-icon">🧪</span>
+    <div class="loading-title">Analisando sua coleção...</div>
+    <div class="loading-sub">Identificando famílias olfativas, perfil e gaps</div>
+    <div class="loading-dots">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section class="result-section" id="result-section">
+  <div class="container">
+    <div class="result-header">
+      <h2>Análise <em>Concluída</em></h2>
+      <p id="result-sub"></p>
+    </div>
+
+    <div class="diag-card">
+      <div class="diag-title">📊 Diagnóstico da Sua Coleção</div>
+      <div class="diag-text" id="diag-text"></div>
+    </div>
+
+    <div class="sug-header">💡 Os 3 Perfumes Certos Para Você</div>
+    <div class="sug-cards" id="sug-cards"></div>
+
+    <div class="upsell-card">
+      <div class="upsell-inner">
+        <div class="upsell-badge">Próximo Passo</div>
+        <h3 class="upsell-title">Quer entender <em>por que</em> cada perfume<br>funciona para você?</h3>
+        <p class="upsell-text">No Curso Prático da Perfumaria você aprende a identificar seu perfil olfativo, escolher com autonomia e montar uma coleção equilibrada — sem depender de vendedor ou influenciador.</p>
+        <a class="btn-upsell" href="https://pay.hotmart.com/X104571170T?checkoutMode=10" target="_blank">
+          Ver o Curso Completo →
+        </a>
+      </div>
+    </div>
+
+    <button class="btn-reset" onclick="resetar()">↩ Fazer nova análise</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <strong style="color:var(--orange)">O Perfumista</strong> — por
+  <a href="https://vguerise.github.io/pv-curso-pratico-da-perfumaria/" target="_blank">Victor Guerise</a>
+</footer>
+
+<script>
+  // ── STATE ──
+  let colecao = [];
+  let budget = '';
+  let contextos = [];
+  let extraContexto = ''; // texto extra extraído do arquivo
+
+  // ── LGPD: habilita botão ──
+  function toggleSubmit() {
+    const checked = document.getElementById('lgpd-check').checked;
+    document.getElementById('btn-submit').disabled = !checked;
+  }
+
+  // ── COLEÇÃO MANUAL ──
+  function addPerfume() {
+    const input = document.getElementById('perf-input');
+    const nome = input.value.trim();
+    if (!nome || colecao.includes(nome)) { input.value = ''; return; }
+    colecao.push(nome);
+    input.value = '';
+    renderTags();
+    atualizarSteps();
+  }
+
+  function remover(i) { colecao.splice(i, 1); renderTags(); atualizarSteps(); }
+
+  function renderTags() {
+    const area = document.getElementById('tags-area');
+    const empty = document.getElementById('tags-empty');
+    document.getElementById('count').textContent = colecao.length;
+    area.querySelectorAll('.tag').forEach(t => t.remove());
+    if (colecao.length === 0) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    colecao.forEach((p, i) => {
+      const tag = document.createElement('div');
+      tag.className = 'tag';
+      tag.innerHTML = `${p} <span class="tag-x" onclick="remover(${i})">×</span>`;
+      area.appendChild(tag);
+    });
+  }
+
+  // ── UPLOAD DE ARQUIVO ──
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('upload-area').classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  }
+
+  async function handleFile(file) {
+    if (!file) return;
+    const status = document.getElementById('upload-status');
+    const allowed = ['application/pdf','text/plain','application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const ext = file.name.split('.').pop().toLowerCase();
+    const allowedExt = ['pdf','txt','doc','docx','pages'];
+
+    if (!allowedExt.includes(ext)) {
+      status.textContent = '⚠️ Formato não suportado. Use PDF, TXT ou Word.';
+      status.className = 'upload-status err';
+      return;
+    }
+
+    status.textContent = '⏳ Lendo arquivo...';
+    status.className = 'upload-status loading';
+
+    try {
+      let textoArquivo = '';
+
+      if (ext === 'txt' || ext === 'pages') {
+        textoArquivo = await lerComoTexto(file);
+      } else if (ext === 'pdf') {
+        textoArquivo = await extrairTextoPDF(file);
+      } else {
+        // doc/docx — lê como texto bruto (funciona para docx em muitos casos)
+        textoArquivo = await lerComoTexto(file);
+      }
+
+      if (!textoArquivo.trim()) throw new Error('Arquivo vazio');
+
+      // Chama a API para extrair os perfumes do texto
+      status.textContent = '🧪 Extraindo perfumes com I.A....';
+      await extrairPerfumesComIA(textoArquivo);
+
+    } catch (err) {
+      console.error(err);
+      status.textContent = '❌ Erro ao ler o arquivo. Tente um TXT ou copie manualmente.';
+      status.className = 'upload-status err';
+    }
+  }
+
+  function lerComoTexto(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsText(file, 'utf-8');
+    });
+  }
+
+  async function extrairTextoPDF(file) {
+    // Lê PDF como texto via FileReader (fallback simples — suficiente para PDFs de texto)
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const arr = new Uint8Array(e.target.result);
+        let str = '';
+        for (let i = 0; i < arr.length; i++) {
+          str += String.fromCharCode(arr[i]);
+        }
+        // Extrai strings legíveis (ASCII printable)
+        const legivel = str.replace(/[^\x20-\x7E\xC0-\xFF\n\r]/g, ' ').replace(/\s+/g, ' ');
+        resolve(legivel);
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  async function extrairPerfumesComIA(textoArquivo) {
+    const status = document.getElementById('upload-status');
+
+    const prompt = `Você é um assistente especializado em perfumaria. Abaixo está o conteúdo de um arquivo enviado pelo usuário com sua coleção de perfumes.
+
+TAREFA:
+1. Identifique TODOS os nomes de perfumes mencionados no texto
+2. Liste cada perfume em uma linha separada, no formato: "Nome do Perfume Marca" (ex: "Sauvage Dior", "Bleu de Chanel")
+3. Guarde qualquer informação extra relevante (notas, observações, preços) como contexto adicional
+4. Retorne JSON puro sem markdown
+
+TEXTO DO ARQUIVO:
+${textoArquivo.substring(0, 3000)}
+
+FORMATO DE RESPOSTA (JSON puro, sem \`\`\`):
+{
+  "perfumes": ["Perfume 1", "Perfume 2", "Perfume 3"],
+  "contexto_extra": "Qualquer informação adicional relevante encontrada no arquivo (ou string vazia se não houver)"
+}`;
+
+    const res = await fetch('https://operfumista-api.vercel.app/api/perfumista', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ diagnostico: prompt })
+    });
+
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+
+    // Tenta parsear como JSON direto ou extrair do campo diagnostico
+    let parsed;
+    try {
+      // A API retorna o JSON dentro de data, mas para extração usamos diagnostico como canal
+      // Tentamos parsear data diretamente ou data.diagnostico
+      const raw = typeof data === 'string' ? data : JSON.stringify(data);
+      // Procura pelo array de perfumes na resposta
+      if (data.perfumes) {
+        parsed = data;
+      } else {
+        // Tenta extrair JSON da resposta bruta
+        const match = raw.match(/\{[\s\S]*\}/);
+        if (match) parsed = JSON.parse(match[0]);
+      }
+    } catch(e) {
+      throw new Error('Parse error');
+    }
+
+    if (parsed && parsed.perfumes && parsed.perfumes.length > 0) {
+      parsed.perfumes.forEach(p => {
+        const nome = p.trim();
+        if (nome && !colecao.includes(nome)) colecao.push(nome);
+      });
+      extraContexto = parsed.contexto_extra || '';
+      renderTags();
+      atualizarSteps();
+      status.textContent = `✅ ${parsed.perfumes.length} perfumes encontrados e importados!`;
+      status.className = 'upload-status ok';
+    } else {
+      status.textContent = '⚠️ Nenhum perfume identificado. Tente adicionar manualmente.';
+      status.className = 'upload-status err';
+    }
+  }
+
+  // ── BUDGET ──
+  function selBudget(el, val) {
+    document.querySelectorAll('#budget-grid .opt').forEach(o => o.classList.remove('sel'));
+    el.classList.add('sel');
+    budget = val;
+    atualizarSteps();
+  }
+
+  // ── CONTEXTO ──
+  function togCtx(el, val) {
+    if (el.classList.contains('sel')) {
+      el.classList.remove('sel');
+      contextos = contextos.filter(c => c !== val);
+    } else {
+      el.classList.add('sel');
+      contextos.push(val);
+    }
+  }
+
+  // ── STEPS ──
+  function atualizarSteps() {
+    const set = (n, state) => {
+      const c = document.getElementById('sc'+n);
+      const l = document.getElementById('sl'+n);
+      if (!c) return;
+      c.className = 'step-circle ' + state;
+      l.className = 'step-label ' + state;
+      c.textContent = state === 'done' ? '✓' : n;
+    };
+    const setLine = (n, done) => {
+      const el = document.getElementById('con'+n);
+      if (el) el.className = 'step-connector' + (done ? ' done' : '');
+    };
+
+    if (colecao.length > 0) { set(1,'done'); setLine(1,true); set(2,'active'); }
+    else { set(1,'active'); setLine(1,false); set(2,''); }
+
+    if (budget) { set(2,'done'); setLine(2,true); set(3,'active'); }
+    else if (colecao.length > 0) { setLine(2,false); }
+
+    // step 4 (redes) sempre visível
+    const ig = document.getElementById('instagram').value.trim();
+    const tt = document.getElementById('tiktok').value.trim();
+    if (ig || tt) { set(4,'done'); }
+  }
+
+  // ── ANALISAR ──
+  async function analisar() {
+    const errEl = document.getElementById('error-msg');
+    if (colecao.length === 0) { errEl.classList.add('show'); return; }
+    errEl.classList.remove('show');
+
+    const ctxStr = contextos.length > 0 ? contextos.join(', ') : 'não especificado';
+    const budgetStr = budget || 'não informado';
+    const instagram = document.getElementById('instagram').value.trim();
+    const tiktok = document.getElementById('tiktok').value.trim();
+
+    const diagnostico = `
+PERFIL DO USUÁRIO:
+Orçamento para próximo perfume: ${budgetStr}
+Contextos de uso: ${ctxStr}
+${extraContexto ? `Informações adicionais do arquivo: ${extraContexto}` : ''}
+
+COLEÇÃO ATUAL (${colecao.length} perfumes):
+${colecao.map((p,i) => `${i+1}. ${p}`).join('\n')}
+
+REGRAS OBRIGATÓRIAS:
+- Sugira APENAS perfumes disponíveis no Brasil em 2025
+- NUNCA sugira perfumes descontinuados
+- Foque em perfumes conhecidos e com boa disponibilidade no mercado
+- Evite pérolas e joias escondidas muito nichadas — priorize perfumes com reconhecimento de mercado
+- Respeite rigorosamente o orçamento: ${budgetStr}
+- 3 sugestões de MARCAS TOTALMENTE DIFERENTES entre si
+- NUNCA sugira perfumes que o usuário já possui
+
+PARTE 1 — DIAGNÓSTICO:
+Escreva um parágrafo direto (3-4 frases) identificando: famílias olfativas predominantes, estilo do colecionador, pontos fortes e gaps.
+
+PARTE 2 — SUGESTÕES:
+Execute o checklist de famílias olfativas e sugira 3 perfumes de marcas diferentes que preencham lacunas reais.
+
+FORMATO DE RESPOSTA — JSON PURO SEM MARKDOWN:
+{
+  "diagnostico": "parágrafo aqui",
+  "analise_colecao": {
+    "perfumes_por_familia": {"Fresco/Cítrico":0,"Aromático/Verde":0,"Doce/Gourmand":0,"Amadeirado":0,"Especiado/Oriental":0,"Aquático/Mineral":0,"Talco/Fougère":0,"Floral":0,"Frutado":0},
+    "familia_dominante": "nome",
+    "top3_faltando": ["f1","f2","f3"]
+  },
+  "recomendacoes": [
+    {"nome":"Nome","concentracao":"EDP","familia":"Família","faixa_preco":"R$x-y","por_que":"justificativa 2-3 frases","quando_usar":"ocasião"},
+    {"nome":"Nome","concentracao":"EDT","familia":"Família","faixa_preco":"R$x-y","por_que":"justificativa 2-3 frases","quando_usar":"ocasião"},
+    {"nome":"Nome","concentracao":"EDP","familia":"Família","faixa_preco":"R$x-y","por_que":"justificativa 2-3 frases","quando_usar":"ocasião"}
+  ]
+}`;
+
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('loading-section').classList.add('show');
+
+    try {
+      const res = await fetch('https://operfumista-api.vercel.app/api/perfumista', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ diagnostico })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      renderResultado(data, { instagram, tiktok });
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loading-section').classList.remove('show');
+      document.getElementById('form-section').style.display = 'block';
+      errEl.textContent = '⚠️ Erro ao conectar com O Perfumista. Tente novamente.';
+      errEl.classList.add('show');
+    }
+  }
+
+  // ── RENDER RESULTADO ──
+  function renderResultado(data, social) {
+    document.getElementById('loading-section').classList.remove('show');
+
+    const diagText = data.diagnostico ||
+      (data.analise_colecao
+        ? `Família dominante: ${data.analise_colecao.familia_dominante||'—'}. Lacunas: ${(data.analise_colecao.top3_faltando||[]).join(', ')}.`
+        : 'Análise concluída.');
+
+    document.getElementById('result-sub').textContent =
+      `${colecao.length} perfume${colecao.length>1?'s':''} analisado${colecao.length>1?'s':''}`;
+    document.getElementById('diag-text').textContent = diagText;
+
+    const grid = document.getElementById('sug-cards');
+    grid.innerHTML = '';
+    (data.recomendacoes || []).forEach((r, i) => {
+      const card = document.createElement('div');
+      card.className = 'sug-card';
+      card.innerHTML = `
+        <div class="sug-num">${i+1}</div>
+        <div>
+          <div class="sug-name">${r.nome} <span class="sug-conc">${r.concentracao||''}</span></div>
+          <div class="sug-familia">${r.familia||''}</div>
+          <div class="sug-reason">${r.por_que}</div>
+          <div class="sug-tags">
+            ${r.quando_usar?`<span class="sug-tag">${r.quando_usar}</span>`:''}
+            ${r.faixa_preco?`<span class="sug-tag">${r.faixa_preco}</span>`:''}
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    // Salvar no Supabase (não bloqueia o render)
+    salvarAnalise(data, social).catch(e => console.warn('Supabase save failed:', e));
+
+    document.getElementById('result-section').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── SALVAR NO SUPABASE ──
+  // Substitua SUPABASE_URL e SUPABASE_ANON_KEY pelos valores do seu projeto
+  const SUPABASE_URL = 'SEU_SUPABASE_URL';
+  const SUPABASE_KEY = 'SUA_SUPABASE_ANON_KEY';
+
+  async function salvarAnalise(data, social) {
+    if (SUPABASE_URL === 'SEU_SUPABASE_URL') return; // não salva se não configurado
+
+    const payload = {
+      instagram: social.instagram || null,
+      tiktok: social.tiktok || null,
+      colecao: colecao,
+      orcamento: budget,
+      contextos: contextos,
+      sugestoes: data.recomendacoes || [],
+      diagnostico: data.diagnostico || '',
+      created_at: new Date().toISOString()
+    };
+
+    await fetch(`${SUPABASE_URL}/rest/v1/analises`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    });
+  }
+
+  // ── RESET ──
+  function resetar() {
+    colecao = []; budget = ''; contextos = []; extraContexto = '';
+    renderTags();
+    document.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+    document.getElementById('instagram').value = '';
+    document.getElementById('tiktok').value = '';
+    document.getElementById('lgpd-check').checked = false;
+    document.getElementById('btn-submit').disabled = true;
+    document.getElementById('upload-status').textContent = '';
+    document.getElementById('upload-status').className = 'upload-status';
+    document.getElementById('file-input').value = '';
+    document.getElementById('result-section').classList.remove('show');
+    document.getElementById('form-section').style.display = 'block';
+    document.getElementById('error-msg').classList.remove('show');
+    atualizarSteps();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
