@@ -225,7 +225,9 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .bpulse{background:var(--or);color:#fff;border:none;border-radius:10px;padding:1.05rem 2rem;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;width:100%;transition:all .25s;animation:glow 2.5s ease-in-out infinite}
 .bpulse:hover:not(:disabled){background:var(--ord);transform:translateY(-2px);box-shadow:0 12px 40px var(--org);animation:none}
 .bpulse:disabled{opacity:.3;cursor:not-allowed;animation:none}
+.bpulse.desatualizado{animation:glow-update 1.2s ease-in-out infinite}
 @keyframes glow{0%,100%{box-shadow:0 0 12px 2px var(--org)}50%{box-shadow:0 0 30px 8px rgba(232,93,4,.5)}}
+@keyframes glow-update{0%,100%{box-shadow:0 0 8px 2px var(--org);transform:scale(1)}50%{box-shadow:0 0 40px 12px rgba(232,93,4,.7);transform:scale(1.015)}}
 /* Resultado */
 .rw{display:none}.rw.sh{display:block}
 .rsep{height:1px;background:var(--bd);margin:2rem 0}
@@ -721,8 +723,24 @@ const MAPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
   const isLocal = location.protocol === 'file:' || location.hostname === 'localhost';
 
   if(!isLocal){
-    // Produção: manifest.json servido pelo mesmo domínio = Chrome mostra "Instalar app"
-    document.getElementById('pwa-manifest').href = './manifest.json';
+    // Produção: corrige o start_url dinamicamente baseado na URL atual
+    // Isso resolve o problema do 404 independente do nome do repositório
+    fetch('./manifest.json')
+      .then(r=>r.json())
+      .then(mf=>{
+        // Sobrescreve start_url com o caminho real atual
+        mf.start_url = window.location.pathname;
+        mf.scope = window.location.pathname.replace(/[^/]*$/, '');
+        mf.icons = mf.icons?.map(i=>({...i,
+          src: new URL(i.src.replace(/^\/[^/]+\//,'./'), window.location.href).pathname
+        }));
+        const blob=new Blob([JSON.stringify(mf)],{type:'application/manifest+json'});
+        document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
+      })
+      .catch(()=>{
+        // Fallback: aponta direto para o arquivo
+        document.getElementById('pwa-manifest').href = './manifest.json';
+      });
   } else {
     // Local: blob fallback (não mostra install prompt, mas funciona)
     const mf = {name:'Perfumap',short_name:'Perfumap',start_url:'./',display:'standalone',
@@ -792,7 +810,7 @@ const FICONS={'Fresco/Cítrico':'🍋','Aromático/Verde':'🌿','Doce/Gourmand'
 const FCOR={'Fresco/Cítrico':'#F59E0B','Aromático/Verde':'#10B981','Doce/Gourmand':'#EC4899','Amadeirado':'#92400E','Especiado/Oriental':'#DC2626','Aquático/Mineral':'#3B82F6','Talco/Fougère':'#8B5CF6','Floral':'#F472B6','Frutado':'#EF4444'};
 
 // ── ESTADO ──
-let user=null,dbId=null,perfilId=null,analiseId=null;
+let user=null,dbId=null,perfilId=null;
 let col=[];
 let perfil={nome:'',cidade:'',clima:'',idade:'',budget:'',ig:'',tt:'',ctxs:[]};
 let budget='',ctxs=[];
@@ -938,7 +956,7 @@ async function iniciar(){
   renderNivel();
   renderRanking();
   verificarHotmart();
-  await carregarAnalise(); // Restaura análise anterior automaticamente
+  carregarAnalise(); // Restaura do localStorage — síncrono, instantâneo
   // Mostrar botão PWA se o prompt já foi capturado antes do login
   if(window._showPWABtn && !localStorage.getItem('pm_pwa_installed')){
     window._showPWABtn();
@@ -1029,7 +1047,25 @@ async function salvarPerfil(){
 }
 
 function cloud(c,t){const el=document.getElementById('cl2');el.className='cl2'+(c?' '+c:'');el.textContent=t;}
-function deb(){clearTimeout(saveT);saveT=setTimeout(salvarCol,800);}
+function deb(){
+  clearTimeout(saveT);saveT=setTimeout(salvarCol,800);
+  // Se já tem análise salva, sinaliza que está desatualizada
+  try{
+    if(localStorage.getItem(lsKey())){
+      const btn=document.getElementById('btn-refazer');
+      const banBtn=document.getElementById('ban');
+      if(btn&&btn.style.display!=='none'){
+        // resultado visível — destacar btn-refazer
+        btn.style.animation='glow-update 1.2s ease-in-out infinite';
+        btn.textContent='🔄 Coleção mudou — reanalisar';
+        btn.style.background='var(--or)';
+        btn.style.color='#fff';
+      } else if(banBtn){
+        banBtn.classList.add('desatualizado');
+      }
+    }
+  }catch(_){}
+}
 
 // ══════ HOTMART WEBHOOK ══════
 // Fluxo completo:
@@ -1395,7 +1431,7 @@ function renderR(data,social,prim){
   const rest=3-novasN;
   document.getElementById('bnov').disabled=novasN>=3;
   document.getElementById('nit').textContent=novasN>=3?'Limite atingido.':`Mais ${rest} vez${rest>1?'es':''} disponíveis.`;
-  salvarAnalise(data,{ig:perfil.ig,tk:perfil.tt}).catch(()=>{});
+  salvarAnalise(data); // salva no localStorage + Supabase background
   document.getElementById('rw').classList.add('sh');
   // Oculta form de análise, mostra botão "Refazer"
   
@@ -1467,96 +1503,85 @@ function aplicar(){
 }
 
 // ══════ SALVAR E CARREGAR ANÁLISE PERSISTIDA ══════
-async function salvarAnalise(data,s){
-  if(!user)return;
-  // Payload base — colunas que existem na tabela original
-  const payloadBase={
-    user_id:user.id,
-    colecao:col,
-    orcamento:budget||perfil.budget,
-    contextos:ctxs,
-    sugestoes:data.sugestoes_por_familia||[],
-    diagnostico:data.diagnostico||'',
-    updated_at:new Date().toISOString()
+// ── Chave localStorage por usuário (isola dados de contas diferentes)
+function lsKey(){return 'pm_analise_'+(user?.id||'guest');}
+
+function salvarAnalise(data){
+  // Salva tudo no localStorage — instantâneo, sem depender de rede
+  const snap={
+    ts: Date.now(),
+    colecao: col,
+    budget: budget||perfil.budget,
+    ctxs,
+    diagnostico: data.diagnostico||'',
+    sugestoes: data.sugestoes_por_familia||[],
+    famBase,
+    naoClass,
+    novasN,
+    jaSug
   };
-  // Colunas extras adicionadas depois — adicionamos ao SQL abaixo
-  // Se não existirem, o Supabase vai ignorar sem erro
-  const payloadExtra={
-    fam_base:famBase,
-    nao_class:naoClass,
-    novas_n:novasN,
-    ja_sug:jaSug
-  };
-  // Tenta com todas as colunas primeiro
-  const payload={...payloadBase,...payloadExtra};
   try{
-    let erro=null;
-    if(analiseId){
-      const r=await DB.from('analises').update(payload).eq('id',analiseId);
-      erro=r.error;
-    }else{
-      const r=await DB.from('analises').insert(payload).select('id').single();
-      erro=r.error;
-      if(!erro&&r.data)analiseId=r.data.id;
-    }
-    // Se falhou (colunas extras não existem), tenta sem elas
-    if(erro){
-      console.warn('[Perfumap] Tentando sem colunas extras:',erro.message);
-      if(analiseId){
-        await DB.from('analises').update(payloadBase).eq('id',analiseId);
-      }else{
-        const r2=await DB.from('analises').insert(payloadBase).select('id').single();
-        if(r2.data)analiseId=r2.data.id;
-      }
-    }
-  }catch(e){console.warn('[Perfumap] Erro ao salvar análise:',e);}
+    localStorage.setItem(lsKey(), JSON.stringify(snap));
+    console.log('[Perfumap] Análise salva no localStorage');
+  }catch(e){
+    console.warn('[Perfumap] localStorage cheio ou bloqueado:',e);
+  }
+  // Salva também no Supabase em background (best-effort, sem travar o fluxo)
+  if(user){
+    DB.from('analises').upsert({
+      user_id:user.id,
+      colecao:col,
+      orcamento:budget||perfil.budget,
+      contextos:ctxs,
+      sugestoes:data.sugestoes_por_familia||[],
+      diagnostico:data.diagnostico||'',
+      updated_at:new Date().toISOString()
+    },{onConflict:'user_id'}).then(r=>{
+      if(r.error)console.warn('[Perfumap] Supabase (não crítico):',r.error.message);
+    }).catch(()=>{});
+  }
 }
 
-async function carregarAnalise(){
-  if(!user)return;
+function carregarAnalise(){
+  // Lê do localStorage — funciona offline, instantâneo
   try{
-    const{data,error}=await DB.from('analises')
-      .select('*')
-      .eq('user_id',user.id)
-      .order('updated_at',{ascending:false})
-      .limit(1)
-      .maybeSingle();
-    if(error){console.warn('[Perfumap] Erro ao carregar análise:',error.message);return;}
-    if(!data){console.log('[Perfumap] Nenhuma análise salva ainda.');return;}
-    console.log('[Perfumap] Análise carregada, id:',data.id,'diagnóstico:',!!data.diagnostico,'sugestões:',data.sugestoes?.length||0);
-    analiseId=data.id;
-    budget=data.orcamento||'';
-    ctxs=data.contextos||[];
-    famBase=data.fam_base||{};
-    naoClass=data.nao_class||[];
-    novasN=data.novas_n||0;
-    jaSug=data.ja_sug||[];
-    if(budget){
-      const btn=document.querySelector('[data-b="'+budget+'"]');
-      if(btn){document.querySelectorAll('#bg .obt').forEach(o=>o.classList.remove('sl'));btn.classList.add('sl');}
+    const raw=localStorage.getItem(lsKey());
+    if(!raw){console.log('[Perfumap] Sem análise salva.');return;}
+    const snap=JSON.parse(raw);
+    console.log('[Perfumap] Análise restaurada do localStorage, ts:',new Date(snap.ts).toLocaleString());
+    
+    // Restaura estado
+    budget=snap.budget||'';
+    ctxs=snap.ctxs||[];
+    famBase=snap.famBase||{};
+    naoClass=snap.naoClass||[];
+    novasN=snap.novasN||0;
+    jaSug=snap.jaSug||[];
+    
+    const temResultado=!!(snap.diagnostico||snap.sugestoes?.length);
+    if(!temResultado)return;
+    
+    // Reconstrói resultado na tela
+    if(snap.diagnostico){
+      document.getElementById('rsub').textContent=(snap.colecao||col).length+' perfumes analisados';
+      const frases=snap.diagnostico.split(/[.!?]+\s+/).map(f=>f.trim()).filter(f=>f.length>4);
+      const el=document.getElementById('dct');el.innerHTML='';
+      if(frases.length>1){
+        const ul=document.createElement('ul');ul.className='dblist';
+        frases.forEach(f=>{const li=document.createElement('li');li.className='dbli';li.textContent=f;ul.appendChild(li);});
+        el.appendChild(ul);
+      }else{el.textContent=snap.diagnostico;}
     }
-    const temResultado=!!(data.diagnostico||data.sugestoes?.length);
-    if(temResultado){
-      if(data.diagnostico){
-        document.getElementById('rsub').textContent=(data.colecao||col).length+' perfumes analisados';
-        const frases=data.diagnostico.split(/[.!?]+\s+/).map(f=>f.trim()).filter(f=>f.length>4);
-        const el=document.getElementById('dct');el.innerHTML='';
-        if(frases.length>1){
-          const ul=document.createElement('ul');ul.className='dblist';
-          frases.forEach(f=>{const li=document.createElement('li');li.className='dbli';li.textContent=f;ul.appendChild(li);});
-          el.appendChild(ul);
-        }else if(data.diagnostico){el.textContent=data.diagnostico;}
-      }
-      if(famBase&&Object.values(famBase).some(v=>v>0))renderG(famBase);
-      if(naoClass&&naoClass.length)renderNC();
-      if(data.sugestoes?.length)renderSugestoes(data.sugestoes);
-      document.getElementById('rw').classList.add('sh');
-      document.getElementById('ban').style.display='none';
-      document.getElementById('btn-refazer').style.display='block';
-      const rest=3-novasN;
-      document.getElementById('bnov').disabled=novasN>=3;
-      document.getElementById('nit').textContent=novasN>=3?'Limite atingido.':`Mais ${rest} vez${rest>1?'es':''} disponíveis.`;
-    }
+    if(famBase&&Object.values(famBase).some(v=>v>0))renderG(famBase);
+    if(naoClass?.length)renderNC();
+    if(snap.sugestoes?.length)renderSugestoes(snap.sugestoes);
+    
+    document.getElementById('rw').classList.add('sh');
+    document.getElementById('ban').style.display='none';
+    document.getElementById('btn-refazer').style.display='block';
+    const rest=3-novasN;
+    document.getElementById('bnov').disabled=novasN>=3;
+    document.getElementById('nit').textContent=novasN>=3?'Limite atingido.':`Mais ${rest} vez${rest>1?'es':''} disponíveis.`;
   }catch(e){console.warn('[Perfumap] Erro ao restaurar análise:',e);}
 }
 
@@ -1602,11 +1627,14 @@ async function instalarPWA(){
 
 // ══════ MOSTRAR FORM ANÁLISE (refazer) ══════
 function mostrarFormAnalise(){
-  
-  document.getElementById('lc').checked=false;
-  document.getElementById('ban').disabled=true;
-  document.getElementById('ban').style.display='';
-  document.getElementById('btn-refazer').style.display='none';
+  const banEl=document.getElementById('ban');
+  banEl.style.display='';
+  banEl.classList.remove('desatualizado');
+  const refEl=document.getElementById('btn-refazer');
+  refEl.style.display='none';
+  refEl.style.animation='';
+  refEl.textContent='🔄 Refazer análise';
+  refEl.style.background='';refEl.style.color='';
   document.getElementById('rw').classList.remove('sh');
   document.querySelector('.tc')?.scrollTo({top:0,behavior:'smooth'});
 }
@@ -1627,8 +1655,8 @@ function resetar(){
   document.getElementById('sct').innerHTML='';document.getElementById('dct').innerHTML='';
   document.getElementById('rw').classList.remove('sh');document.getElementById('emsg').classList.remove('sh');
   document.querySelector('.tc')?.scrollTo({top:0,behavior:'smooth'});
-  // Apaga análise do banco para forçar nova análise
-  if(user&&analiseId){DB.from('analises').delete().eq('id',analiseId).catch(()=>{});}
+  // Limpa análise do localStorage
+  try{localStorage.removeItem(lsKey());}catch(_){}
 }
 </script>
 </body>
