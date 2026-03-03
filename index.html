@@ -195,10 +195,6 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .rank-breakdown{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--bd);grid-column:1/-1}
 .rbk{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:.38rem .75rem;font-size:.72rem;color:var(--tx2);display:flex;align-items:center;gap:.35rem}
 .rbk span{color:var(--or);font-weight:700}
-/* Stories */
-.stories-wrap{text-align:center}
-.bshare{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;border:none;border-radius:10px;padding:.82rem 1.7rem;font-family:'DM Sans',sans-serif;font-size:.87rem;font-weight:700;cursor:pointer;transition:opacity .2s;display:inline-flex;align-items:center;gap:.5rem}
-.bshare:hover{opacity:.88}
 /* Formulário análise */
 .slabel{font-size:.66rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--or);margin-bottom:.5rem}
 .stitle{font-size:.94rem;font-weight:800;color:var(--tx);margin-bottom:.8rem}
@@ -320,10 +316,41 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .hm-badge.lock .hm-left{display:flex;align-items:center;gap:.55rem}
 .hm-badge.ok .hm-left{display:flex;align-items:center;gap:.55rem}
 .bnav{display:none;position:fixed;bottom:0;left:0;right:0;height:calc(var(--bn) + var(--sb));background:var(--s1);border-top:1px solid var(--bd);z-index:100;padding-bottom:var(--sb)}
-.bnavi{display:grid;grid-template-columns:repeat(3,1fr);height:var(--bn);width:100%}
+.bnavi{display:grid;grid-template-columns:repeat(4,1fr);height:var(--bn);width:100%}
 .bni{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;cursor:pointer;border:none;background:none;padding:.32rem;transition:all .2s;width:100%}
 .bnic{font-size:1.2rem;transition:transform .2s}.bnil{font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:600;color:var(--tx3);transition:color .2s}
 .bni.ac .bnic{transform:scale(1.1)}.bni.ac .bnil{color:var(--or)}
+
+/* ══ CHAT I.A. ══ */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100dvh - var(--hh) - var(--bn) - var(--sb) - 3.5rem);padding:0 1rem 1rem}
+.chat-ctx{background:rgba(232,93,4,.08);border:1px solid rgba(232,93,4,.2);border-radius:10px;padding:.55rem .9rem;margin-bottom:.75rem;font-size:.74rem;color:var(--tx2)}
+.chat-ctx.h{display:none}
+.chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.85rem;padding-bottom:.5rem;scroll-behavior:smooth}
+.chat-bubble{display:flex;gap:.65rem;align-items:flex-start}
+.chat-bubble.user{flex-direction:row-reverse}
+.chat-av{width:32px;height:32px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.chat-bubble.user .chat-av{background:var(--or)}
+.chat-txt{background:var(--s2);border-radius:14px;padding:.75rem 1rem;font-size:.84rem;line-height:1.55;color:var(--tx);max-width:82%;border:1px solid var(--bd)}
+.chat-bubble.user .chat-txt{background:var(--or);color:#fff;border-color:transparent;border-radius:14px 14px 4px 14px}
+.chat-bubble.ai .chat-txt{border-radius:14px 14px 14px 4px}
+.chat-txt strong{color:var(--or)}
+.chat-bubble.user .chat-txt strong{color:#fff}
+.chat-typing{display:flex;gap:4px;align-items:center;padding:.75rem 1rem}
+.chat-dot{width:7px;height:7px;border-radius:50%;background:var(--tx3);animation:typing .9s ease-in-out infinite}
+.chat-dot:nth-child(2){animation-delay:.15s}
+.chat-dot:nth-child(3){animation-delay:.3s}
+@keyframes typing{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+.chat-chips{display:flex;flex-wrap:wrap;gap:.45rem;padding:.65rem 0;flex-shrink:0}
+.chip{background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:.42rem .85rem;font-size:.74rem;color:var(--tx2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
+.chip:hover{border-color:var(--or);color:var(--or)}
+.chat-inp-wrap{display:flex;align-items:flex-end;gap:.6rem;background:var(--s1);border:1.5px solid var(--bd);border-radius:14px;padding:.6rem .7rem;flex-shrink:0;transition:border-color .2s}
+.chat-inp-wrap:focus-within{border-color:var(--or)}
+.chat-inp{flex:1;background:none;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--tx);resize:none;max-height:120px;line-height:1.45;padding:0}
+.chat-inp::placeholder{color:var(--tx3)}
+.chat-send{background:var(--or);border:none;border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;flex-shrink:0;transition:background .2s}
+.chat-send:hover{background:var(--ord)}
+.chat-send:disabled{opacity:.4;cursor:not-allowed}
+.chat-send svg{pointer-events:none}
 
 /* ══ BOTÃO PWA ══ */
 .pwa-btn{display:none;position:fixed;bottom:calc(var(--bn) + var(--sb) + 12px);right:14px;z-index:200;background:var(--or);color:#fff;border:none;border-radius:14px;padding:.75rem 1.1rem;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;align-items:center;gap:.55rem;box-shadow:0 4px 20px rgba(232,93,4,.5);animation:pwa-pulse 2s ease-in-out infinite}
@@ -603,14 +630,6 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 
 
           <!-- Stories -->
-          <div class="card">
-            <div class="clabel">📸 Compartilhar para Stories</div>
-            <div class="stories-wrap">
-              <p style="font-size:.8rem;color:var(--tx2);margin-bottom:1rem">Gere um card para compartilhar sua coleção no Instagram</p>
-              <button class="bshare" id="bshare">✨ Gerar card para Stories</button>
-            </div>
-          </div>
-
           <div style="height:1px;background:var(--bd);margin:1.5rem 0"></div>
 
           <!-- Botão analisar + resultado persistido -->
@@ -659,6 +678,36 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
       </div>
 
     </div>
+
+      <!-- ══ ABA 4: CHAT I.A. ══ -->
+      <div class="tpane" id="tab-chat">
+        <div class="pg-hdr">
+          <h2>Chat I.A.</h2>
+          <p>Converse com o Perfumista sobre qualquer dúvida</p>
+        </div>
+        <div class="chat-wrap">
+          <div id="chat-ctx-badge" class="chat-ctx h"></div>
+          <div class="chat-msgs" id="chat-msgs">
+            <div class="chat-bubble ai">
+              <div class="chat-av">🧑‍🏫</div>
+              <div class="chat-txt">Olá! Sou o <strong>Perfumista</strong>, seu consultor de fragrâncias com I.A.<br><br>Posso analisar sua coleção, comparar perfumes, sugerir opções para seu estilo ou responder qualquer dúvida sobre fragrâncias. O que você quer saber?</div>
+            </div>
+          </div>
+          <div class="chat-chips" id="chat-chips">
+            <button class="chip" onclick="enviarChip(this)">🔍 Baccarat Rouge combina com minha coleção?</button>
+            <button class="chip" onclick="enviarChip(this)">📦 Analise minha coleção atual</button>
+            <button class="chip" onclick="enviarChip(this)">💰 Melhor custo-benefício para completar</button>
+            <button class="chip" onclick="enviarChip(this)">🌡️ Indique perfumes para o calor</button>
+          </div>
+          <div class="chat-inp-wrap">
+            <textarea class="chat-inp" id="chat-inp" placeholder="Ex: Acha que Baccarat Rouge 540 combina com minha coleção?" rows="1" oninput="autoResizeChat(this)" onkeydown="chatKeydown(event)"></textarea>
+            <button class="chat-send" id="chat-send" onclick="enviarMensagem()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
   </main>
 </div>
 
@@ -668,11 +717,9 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
     <button class="bni ac" data-tab="dados"><span class="bnic">👤</span><span class="bnil">Dados</span></button>
     <button class="bni" data-tab="colecao"><span class="bnic">📦</span><span class="bnil">Coleção</span></button>
     <button class="bni" data-tab="analise"><span class="bnic">📊</span><span class="bnil">Análise</span></button>
+    <button class="bni" data-tab="chat"><span class="bnic">💬</span><span class="bnil">Chat I.A.</span></button>
   </div>
 </nav>
-
-<!-- Canvas Stories (oculto) -->
-<canvas id="stories-canvas" style="display:none" width="540" height="960"></canvas>
 
 <!-- Botão PWA piscante -->
 <button class="pwa-btn" id="pwa-btn" onclick="instalarPWA()">
@@ -902,7 +949,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('nchv').classList.toggle('op');
   });
   document.getElementById('batu').addEventListener('click',aplicar);
-  document.getElementById('bshare').addEventListener('click',gerarStories);
+
   // Dropdown coleção
   document.getElementById('col-toggle').addEventListener('click',()=>{
     document.getElementById('col-toggle').classList.toggle('open');
@@ -1012,7 +1059,7 @@ async function carregarPerfil(){
 
     }
   }catch(_){}
-  document.getElementById('nv-nome').textContent=perfil.nome||user.email.split('@')[0];
+  document.getElementById('nv-nome').textContent=perfil.nome||'Colecionador';
 }
 
 async function salvarCol(){
@@ -1034,7 +1081,7 @@ async function salvarPerfil(){
   perfil.budget=document.getElementById('pf-budget').value;
   perfil.ctxs=ctxs;
   budget=perfil.budget||budget;
-  document.getElementById('nv-nome').textContent=perfil.nome||user.email.split('@')[0];
+  document.getElementById('nv-nome').textContent=perfil.nome||'Colecionador';
   try{
     const payload={user_id:user.id,nome:perfil.nome,cidade:perfil.cidade,clima:perfil.clima,
       idade:perfil.idade,budget:perfil.budget,ctxs:JSON.stringify(ctxs),
@@ -1157,7 +1204,7 @@ function renderNivel(){
   document.getElementById('nv-titulo').textContent=nv.titulo;
   document.getElementById('nv-titulo').style.color=nv.cor;
   document.getElementById('nv-sub').textContent=`${n} perfume${n!==1?'s':''} na coleção`;
-  document.getElementById('nv-nome').textContent=perfil.nome||user?.email?.split('@')[0]||'—';
+  document.getElementById('nv-nome').textContent=perfil.nome||'Colecionador';
   document.getElementById('nct').textContent=n;
   document.getElementById('fc').textContent=n;
   if(prox){
@@ -1233,40 +1280,6 @@ async function importarDoMapa(){
   btn.disabled=false;
 }
 
-// ══════ STORIES ══════
-function gerarStories(){
-  const canvas=document.getElementById('stories-canvas');
-  const ctx=canvas.getContext('2d');
-  const W=540,H=960,sc=calcScore(),nv=sc.nivel;
-  ctx.fillStyle='#0E0E0E';ctx.fillRect(0,0,W,H);
-  const grd=ctx.createRadialGradient(W/2,200,50,W/2,200,420);
-  grd.addColorStop(0,nv.cor+'30');grd.addColorStop(1,'rgba(14,14,14,0)');
-  ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
-  ctx.textAlign='center';
-  ctx.font='88px serif';ctx.fillStyle='#fff';ctx.fillText(nv.emoji,W/2,220);
-  ctx.font='bold 50px Montserrat,sans-serif';ctx.fillStyle=nv.cor;ctx.fillText(nv.titulo,W/2,305);
-  const nome=perfil.nome||user?.email?.split('@')[0]||'Colecionador';
-  ctx.font='500 30px DM Sans,sans-serif';ctx.fillStyle='rgba(240,240,240,.6)';ctx.fillText(nome,W/2,352);
-  ctx.strokeStyle='rgba(255,255,255,.1)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(80,392);ctx.lineTo(W-80,392);ctx.stroke();
-  ctx.font='bold 88px Montserrat,sans-serif';ctx.fillStyle='#fff';ctx.fillText(col.length,W/2,502);
-  ctx.font='500 27px DM Sans,sans-serif';ctx.fillStyle='rgba(240,240,240,.5)';
-  ctx.fillText('perfume'+(col.length!==1?'s':'')+' na coleção',W/2,548);
-  ctx.font='bold 38px Montserrat,sans-serif';ctx.fillStyle=nv.cor;ctx.fillText(sc.total+' pts',W/2,615);
-  ctx.font='500 22px DM Sans,sans-serif';ctx.fillStyle='rgba(240,240,240,.35)';ctx.fillText('score de colecionador',W/2,648);
-  const prox=NIVEIS.find(v=>v.min>nv.min);
-  if(prox){
-    const p=(col.length-nv.min)/(prox.min-nv.min);
-    ctx.fillStyle='rgba(255,255,255,.08)';rr(ctx,80,690,W-160,10,5);ctx.fill();
-    ctx.fillStyle=nv.cor;rr(ctx,80,690,Math.max(10,(W-160)*p),10,5);ctx.fill();
-    ctx.font='500 19px DM Sans,sans-serif';ctx.fillStyle='rgba(240,240,240,.3)';
-    ctx.fillText(col.length+'/'+prox.min+' para '+prox.titulo,W/2,728);
-  }
-  ctx.font='bold 21px Montserrat,sans-serif';ctx.fillStyle='rgba(232,93,4,.7)';ctx.fillText('🗺️ Perfumap',W/2,878);
-  ctx.font='500 17px DM Sans,sans-serif';ctx.fillStyle='rgba(240,240,240,.22)';ctx.fillText('perfumap.com.br',W/2,906);
-  const a=document.createElement('a');a.download='perfumap-stories.png';a.href=canvas.toDataURL('image/png');a.click();
-}
-function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 
 // ══════ COLEÇÃO ══════
 function cap(s){
@@ -1637,6 +1650,169 @@ function mostrarFormAnalise(){
   refEl.style.background='';refEl.style.color='';
   document.getElementById('rw').classList.remove('sh');
   document.querySelector('.tc')?.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══════ CHAT I.A. ══════
+let chatHistorico = []; // {role:'user'|'assistant', content:''}
+let chatThinking = false;
+
+function chatContexto(){
+  // Monta contexto da coleção para o sistema
+  const nomePerfis = perfil.nome || 'Colecionador';
+  const nPerfumes = col.length;
+  const familias = [...new Set(col.filter(p=>p.familia).map(p=>p.familia))];
+  const semFamilia = col.filter(p=>!p.familia).length;
+  const listaNomes = col.map(p=>`${p.nome}${p.marca?' ('+p.marca+')':''}`).join(', ');
+
+  let ctx = `Você é o Perfumista, consultor especialista em fragrâncias masculinas que faz parte do app Perfumap. `;
+  ctx += `Você conversa de forma direta, prática e apaixonada por perfumaria. Use emojis com moderação. Responda em português brasileiro.
+
+`;
+  ctx += `DADOS DO USUÁRIO:
+`;
+  ctx += `Nome: ${nomePerfis}
+`;
+  if(perfil.cidade) ctx += `Cidade: ${perfil.cidade}
+`;
+  if(perfil.clima) ctx += `Clima: ${perfil.clima}
+`;
+  if(perfil.budget) ctx += `Orçamento padrão: ${perfil.budget}
+`;
+  if(ctxs.length) ctx += `Contextos de uso: ${ctxs.join(', ')}
+`;
+  ctx += `
+COLEÇÃO ATUAL (${nPerfumes} perfumes):
+`;
+  if(nPerfumes > 0){
+    ctx += listaNomes + '\n';
+    if(familias.length) ctx += `
+Famílias representadas: ${familias.join(', ')}
+`;
+    if(semFamilia) ctx += `Perfumes sem família classificada: ${semFamilia}
+`;
+  } else {
+    ctx += 'Coleção vazia — o usuário ainda não adicionou perfumes.\n';
+  }
+  ctx += `
+Responda de forma objetiva e útil. Se o usuário perguntar sobre um perfume específico, diga se ele complementa ou repete algo da coleção.`;
+  return ctx;
+}
+
+function chatAtualizarCtxBadge(){
+  const badge = document.getElementById('chat-ctx-badge');
+  if(!badge) return;
+  if(col.length > 0){
+    badge.textContent = `🗺️ Perfumista consultando sua coleção de ${col.length} perfume${col.length>1?'s':''}`
+      + (perfil.nome ? ` de ${perfil.nome}` : '');
+    badge.classList.remove('h');
+  } else {
+    badge.classList.add('h');
+  }
+}
+
+function chatAddMsg(role, texto, typing=false){
+  const msgs = document.getElementById('chat-msgs');
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble ' + (role==='user'?'user':'ai');
+  const av = document.createElement('div');
+  av.className = 'chat-av';
+  av.textContent = role==='user' ? '👤' : '🧑‍🏫';
+  const txt = document.createElement('div');
+  txt.className = 'chat-txt';
+  if(typing){
+    txt.innerHTML = '<div class="chat-typing"><div class="chat-dot"></div><div class="chat-dot"></div><div class="chat-dot"></div></div>';
+    bubble.id = 'chat-typing';
+  } else {
+    // Converte markdown básico: **bold**, quebras de linha
+    txt.innerHTML = texto
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+      .replace(/\n/g,'<br>');
+  }
+  bubble.appendChild(av);
+  bubble.appendChild(txt);
+  msgs.appendChild(bubble);
+  msgs.scrollTop = msgs.scrollHeight;
+  return bubble;
+}
+
+function chatRemoveTyping(){
+  const t = document.getElementById('chat-typing');
+  if(t) t.remove();
+}
+
+async function enviarMensagem(){
+  if(chatThinking) return;
+  const inp = document.getElementById('chat-inp');
+  const texto = inp.value.trim();
+  if(!texto) return;
+
+  // Esconde chips após primeiro envio
+  document.getElementById('chat-chips').style.display='none';
+
+  // Adiciona msg do usuário
+  chatAddMsg('user', texto);
+  chatHistorico.push({role:'user', content: texto});
+  inp.value='';
+  inp.style.height='auto';
+
+  // Desabilita envio
+  chatThinking=true;
+  document.getElementById('chat-send').disabled=true;
+
+  // Mostra typing
+  chatAddMsg('ai','',true);
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: chatContexto(),
+        messages: chatHistorico
+      })
+    });
+    const data = await resp.json();
+    const resposta = data?.content?.[0]?.text || 'Desculpe, não consegui processar sua mensagem.';
+    chatRemoveTyping();
+    chatAddMsg('ai', resposta);
+    chatHistorico.push({role:'assistant', content: resposta});
+    // Limitar histórico a 20 mensagens para não explodir o contexto
+    if(chatHistorico.length > 20) chatHistorico = chatHistorico.slice(-20);
+  }catch(e){
+    chatRemoveTyping();
+    chatAddMsg('ai','Erro de conexão. Verifique sua internet e tente novamente.');
+    console.warn('[Chat]', e);
+  }
+
+  chatThinking=false;
+  document.getElementById('chat-send').disabled=false;
+  document.getElementById('chat-inp').focus();
+}
+
+function enviarChip(btn){
+  const texto = btn.textContent.replace(/^[^\w]+/,'').trim();
+  document.getElementById('chat-inp').value = texto;
+  enviarMensagem();
+}
+
+function autoResizeChat(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,120)+'px';
+}
+
+function chatKeydown(e){
+  // Enter sem shift envia; shift+enter quebra linha
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();enviarMensagem();}
+}
+
+// Atualizar badge quando mudar de aba para chat
+const _goTabOrig = goTab;
+function goTab(t){
+  _goTabOrig(t);
+  if(t==='chat') chatAtualizarCtxBadge();
 }
 
 // ══════ RESET ══════
