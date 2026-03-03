@@ -316,10 +316,26 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .hm-badge.lock .hm-left{display:flex;align-items:center;gap:.55rem}
 .hm-badge.ok .hm-left{display:flex;align-items:center;gap:.55rem}
 .bnav{display:none;position:fixed;bottom:0;left:0;right:0;height:calc(var(--bn) + var(--sb));background:var(--s1);border-top:1px solid var(--bd);z-index:100;padding-bottom:var(--sb)}
-.bnavi{display:grid;grid-template-columns:repeat(4,1fr);height:var(--bn);width:100%}
+.bnavi{display:grid;grid-template-columns:repeat(5,1fr);height:var(--bn);width:100%}
 .bni{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;cursor:pointer;border:none;background:none;padding:.32rem;transition:all .2s;width:100%}
 .bnic{font-size:1.2rem;transition:transform .2s}.bnil{font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:600;color:var(--tx3);transition:color .2s}
 .bni.ac .bnic{transform:scale(1.1)}.bni.ac .bnil{color:var(--or)}
+
+/* ══ DESEJOS ══ */
+.witem{display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:.55rem;transition:border-color .2s}
+.witem:hover{border-color:var(--or)}
+.witem-num{width:22px;height:22px;border-radius:50%;background:var(--s2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--tx3);flex-shrink:0}
+.witem-nome{flex:1;font-size:.87rem;font-weight:600;color:var(--tx)}
+.witem-badge{font-size:.7rem;padding:.25rem .6rem;border-radius:20px;font-weight:700;flex-shrink:0}
+.witem-badge.top{background:rgba(232,93,4,.15);color:var(--or);border:1px solid rgba(232,93,4,.3)}
+.witem-badge.medio{background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)}
+.witem-badge.baixo{background:rgba(255,255,255,.05);color:var(--tx3);border:1px solid var(--bd)}
+.witem-rm{background:none;border:none;color:var(--tx3);cursor:pointer;padding:.2rem .4rem;font-size:.9rem;border-radius:6px;transition:color .15s}
+.witem-rm:hover{color:#ef4444}
+.w-ia-card{background:var(--s1);border:1px solid rgba(232,93,4,.25);border-radius:12px;padding:1rem 1.1rem;font-size:.82rem;line-height:1.6;color:var(--tx)}
+.w-ia-card strong{color:var(--or)}
+/* Ajuste label menor para 5 itens no nav */
+@media(max-width:400px){.bnil{font-size:.55rem}}
 
 /* ══ CHAT I.A. ══ */
 .chat-wrap{display:flex;flex-direction:column;height:calc(100dvh - var(--hh) - var(--bn) - var(--sb) - 3.5rem);padding:0 1rem 1rem}
@@ -351,6 +367,13 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .chat-send:hover{background:var(--ord)}
 .chat-send:disabled{opacity:.4;cursor:not-allowed}
 .chat-send svg{pointer-events:none}
+
+/* ══ FAB CHAT ══ */
+.chat-fab{position:fixed;bottom:calc(var(--bn) + var(--sb) + 14px);left:14px;z-index:190;background:var(--s2);border:1px solid var(--bd);color:var(--tx2);border-radius:30px;padding:.55rem .9rem;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.45rem;box-shadow:0 2px 12px rgba(0,0,0,.3);transition:all .25s}
+.chat-fab:hover{background:var(--or);border-color:var(--or);color:#fff}
+.chat-fab.h{display:none}
+.chat-fab-txt{white-space:nowrap}
+@media(min-width:769px){.chat-fab{bottom:18px}}
 
 /* ══ BOTÃO PWA ══ */
 .pwa-btn{display:none;position:fixed;bottom:calc(var(--bn) + var(--sb) + 12px);right:14px;z-index:200;background:var(--or);color:#fff;border:none;border-radius:14px;padding:.75rem 1.1rem;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;align-items:center;gap:.55rem;box-shadow:0 4px 20px rgba(232,93,4,.5);animation:pwa-pulse 2s ease-in-out infinite}
@@ -588,6 +611,16 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
               </div>
             </div>
           </div>
+
+          <!-- CTA: ir para análise -->
+          <div id="col-cta-analise" style="display:none;margin-top:1rem;background:linear-gradient(135deg,rgba(232,93,4,.1),rgba(232,93,4,.05));border:1px solid rgba(232,93,4,.3);border-radius:14px;padding:1rem 1.2rem;align-items:center;gap:1rem;flex-wrap:wrap">
+            <div style="flex:1;min-width:160px">
+              <div style="font-size:.85rem;font-weight:700;color:var(--tx);margin-bottom:.2rem">🧠 Sua coleção está pronta para análise</div>
+              <div style="font-size:.75rem;color:var(--tx2)">Descubra seus gaps olfativos e as melhores sugestões de compra</div>
+            </div>
+            <button onclick="goTab('analise')" style="background:var(--or);color:#fff;border:none;border-radius:10px;padding:.65rem 1.2rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap;flex-shrink:0">Analisar agora →</button>
+          </div>
+
         </div>
       </div>
 
@@ -679,7 +712,39 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 
     </div>
 
-      <!-- ══ ABA 4: CHAT I.A. ══ -->
+      <!-- ══ ABA 4: DESEJOS ══ -->
+      <div class="tpane" id="tab-desejos">
+        <div class="pg-hdr">
+          <h2>Lista de Desejos</h2>
+          <p>Seus próximos perfumes, priorizados pela I.A.</p>
+        </div>
+        <div class="pg-body">
+          <!-- Input de desejo -->
+          <div class="ctls" style="margin-bottom:1rem">
+            <div class="iw">
+              <input class="inp" type="text" id="wi" placeholder="Nome do perfume que você quer..." onkeydown="if(event.key==='Enter')addDesejo()">
+              <button class="bai" id="wadd" onclick="addDesejo()">+</button>
+            </div>
+          </div>
+
+          <!-- CTA priorizar com I.A. -->
+          <div id="w-ia-wrap" style="display:none;margin-bottom:1rem">
+            <button class="bpulse" id="w-ia-btn" onclick="priorizarDesejos()" style="font-size:.78rem;padding:.75rem 1.2rem;text-transform:none;letter-spacing:0">
+              ✨ Priorizar com I.A. — qual comprar primeiro?
+            </button>
+            <div id="w-ia-result" style="margin-top:.85rem"></div>
+          </div>
+
+          <!-- Lista de desejos -->
+          <div id="w-empty" class="es" style="display:none">
+            <div class="ei">🎯</div>
+            <p>Sua lista de desejos está vazia.<br>Adicione perfumes que você quer comprar.</p>
+          </div>
+          <div id="wlist"></div>
+        </div>
+      </div>
+
+      <!-- ══ ABA 5: CHAT I.A. ══ -->
       <div class="tpane" id="tab-chat">
         <div class="pg-hdr">
           <h2>Chat I.A.</h2>
@@ -717,9 +782,16 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
     <button class="bni ac" data-tab="dados"><span class="bnic">👤</span><span class="bnil">Dados</span></button>
     <button class="bni" data-tab="colecao"><span class="bnic">📦</span><span class="bnil">Coleção</span></button>
     <button class="bni" data-tab="analise"><span class="bnic">📊</span><span class="bnil">Análise</span></button>
+    <button class="bni" data-tab="desejos"><span class="bnic">🎯</span><span class="bnil">Desejos</span></button>
     <button class="bni" data-tab="chat"><span class="bnic">💬</span><span class="bnil">Chat I.A.</span></button>
   </div>
 </nav>
+
+<!-- Atalho flutuante Chat I.A. -->
+<button class="chat-fab h" id="chat-fab" onclick="goTab('chat')" title="Abrir Chat I.A.">
+  <span style="font-size:1.2rem">💬</span>
+  <span class="chat-fab-txt">Perguntar ao Perfumista</span>
+</button>
 
 <!-- Botão PWA piscante -->
 <button class="pwa-btn" id="pwa-btn" onclick="instalarPWA()">
@@ -1004,6 +1076,10 @@ async function iniciar(){
   renderRanking();
   verificarHotmart();
   carregarAnalise(); // Restaura do localStorage — síncrono, instantâneo
+  carregarDesejos(); // Carrega lista de desejos
+  // FAB chat visível por padrão (estamos na aba dados)
+  const fabEl = document.getElementById('chat-fab');
+  if(fabEl) fabEl.classList.remove('h');
   // Mostrar botão PWA se o prompt já foi capturado antes do login
   if(window._showPWABtn && !localStorage.getItem('pm_pwa_installed')){
     window._showPWABtn();
@@ -1027,6 +1103,11 @@ function goTab(t){
       if(btn){btn.classList.add('sl');budget=perfil.budget;}
     }
   }
+  if(t==='chat') chatAtualizarCtxBadge();
+  if(t==='desejos') renderDesejos();
+  // FAB chat: visível em todas abas exceto chat
+  const fab=document.getElementById('chat-fab');
+  if(fab) fab.classList.toggle('h', t==='chat');
 }
 
 // ══════ SUPABASE ══════
@@ -1348,6 +1429,13 @@ function renderCol(){
     el.innerHTML='<div class="ei">🔍</div><p>Nenhum perfume encontrado.</p>';
     list.appendChild(el);return;
   }
+  // CTA inline: incentiva análise quando tem 3+ perfumes e não tem resultado
+  const ctaEl = document.getElementById('col-cta-analise');
+  if(ctaEl){
+    const temAnalise = !!localStorage.getItem(lsKey());
+    ctaEl.style.display = (col.length >= 3 && !temAnalise) ? 'flex' : 'none';
+  }
+
   filt.forEach((p,i)=>{
     const item=document.createElement('div');item.className='pi';
     const info=document.createElement('div');
@@ -1685,6 +1773,167 @@ function mostrarFormAnalise(){
   document.querySelector('.tc')?.scrollTo({top:0,behavior:'smooth'});
 }
 
+// ══════ DESEJOS ══════
+let desejos = []; // [{nome, prioridade, motivo}] — prioridade: 'top'|'medio'|'baixo'
+const DESEJOS_KEY = () => 'pm_desejos_' + (user?.id || 'guest');
+
+function carregarDesejos(){
+  try{
+    const raw = localStorage.getItem(DESEJOS_KEY());
+    if(raw) desejos = JSON.parse(raw);
+  }catch(_){}
+}
+
+function salvarDesejos(){
+  try{ localStorage.setItem(DESEJOS_KEY(), JSON.stringify(desejos)); }catch(_){}
+}
+
+function addDesejo(){
+  const inp = document.getElementById('wi');
+  const nome = inp.value.trim();
+  if(!nome) return;
+  if(desejos.some(d => d.nome.toLowerCase() === nome.toLowerCase())){
+    inp.value=''; return;
+  }
+  desejos.push({nome, prioridade: null, motivo: null});
+  salvarDesejos();
+  inp.value = '';
+  renderDesejos();
+  // Mostrar botão I.A. se tiver 2+ desejos e coleção
+  atualizarWIAWrap();
+}
+
+function remDesejo(i){
+  desejos.splice(i,1);
+  salvarDesejos();
+  renderDesejos();
+  atualizarWIAWrap();
+}
+
+function atualizarWIAWrap(){
+  const wrap = document.getElementById('w-ia-wrap');
+  if(wrap) wrap.style.display = (desejos.length >= 1 && col.length > 0) ? 'block' : 'none';
+}
+
+function renderDesejos(){
+  const list = document.getElementById('wlist');
+  const empty = document.getElementById('w-empty');
+  if(!list) return;
+  list.innerHTML = '';
+  if(!desejos.length){
+    if(empty) empty.style.display = 'block';
+    atualizarWIAWrap();
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+  atualizarWIAWrap();
+
+  desejos.forEach((d, i) => {
+    const item = document.createElement('div');
+    item.className = 'witem';
+
+    const num = document.createElement('div');
+    num.className = 'witem-num';
+    num.textContent = i + 1;
+
+    const nome = document.createElement('div');
+    nome.className = 'witem-nome';
+    nome.textContent = d.nome;
+
+    const rm = document.createElement('button');
+    rm.className = 'witem-rm';
+    rm.textContent = '✕';
+    rm.addEventListener('click', () => remDesejo(i));
+
+    item.appendChild(num);
+    item.appendChild(nome);
+
+    if(d.prioridade){
+      const badge = document.createElement('span');
+      badge.className = 'witem-badge ' + d.prioridade;
+      badge.textContent = d.prioridade === 'top' ? '🔥 Prioridade alta'
+        : d.prioridade === 'medio' ? '⭐ Médio' : '💤 Baixo';
+      item.appendChild(badge);
+    }
+
+    item.appendChild(rm);
+    list.appendChild(item);
+  });
+}
+
+async function priorizarDesejos(){
+  if(!desejos.length || !col.length) return;
+  const btn = document.getElementById('w-ia-btn');
+  const result = document.getElementById('w-ia-result');
+  btn.disabled = true;
+  btn.textContent = '⏳ Analisando...';
+  result.innerHTML = '';
+
+  const nomesColecao = col.map(p => p.nome + (p.familia ? ` (${p.familia})` : '')).join(', ');
+  const nomesDesejos = desejos.map((d,i) => `${i+1}. ${d.nome}`).join('\n');
+  const ctx = perfil.budget ? `Orçamento: ${perfil.budget}.` : '';
+  const ctxUso = ctxs.length ? `Contextos de uso: ${ctxs.join(', ')}.` : '';
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Você é o Perfumista, consultor especialista em fragrâncias. Responda APENAS em JSON válido, sem markdown, sem texto fora do JSON.`,
+        messages: [{
+          role: 'user',
+          content: `Minha coleção atual (${col.length} perfumes): ${nomesColecao}
+
+Lista de desejos:
+${nomesDesejos}
+
+${ctx} ${ctxUso}
+
+Para cada perfume da lista de desejos, avalie se ele:
+- Complementa o que já tenho (adiciona família/estilo novo) → prioridade "top"
+- Adiciona algo interessante mas não urgente → prioridade "medio"  
+- Repete estilos que já tenho → prioridade "baixo"
+
+Responda SOMENTE este JSON (sem mais nada):
+{"prioridades":[{"indice":1,"prioridade":"top","motivo":"motivo em 1 linha"},{"indice":2,...}],"resumo":"resumo geral em 1-2 frases"}`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const text = data?.content?.[0]?.text || '';
+    const clean = text.replace(/\`\`\`json|\`\`\`/g,'').trim();
+    const parsed = JSON.parse(clean);
+
+    // Aplica prioridades
+    parsed.prioridades.forEach(p => {
+      const idx = p.indice - 1;
+      if(desejos[idx]){
+        desejos[idx].prioridade = p.prioridade;
+        desejos[idx].motivo = p.motivo;
+      }
+    });
+
+    // Reordena: top → medio → baixo
+    const ordem = {top:0,medio:1,baixo:2};
+    desejos.sort((a,b) => (ordem[a.prioridade]??3) - (ordem[b.prioridade]??3));
+    salvarDesejos();
+    renderDesejos();
+
+    // Mostra resumo
+    if(parsed.resumo){
+      result.innerHTML = `<div class="w-ia-card">${parsed.resumo.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')}</div>`;
+    }
+    btn.textContent = '✨ Repriorizar com I.A.';
+  }catch(e){
+    result.innerHTML = '<div class="w-ia-card" style="border-color:#ef4444;color:#ef4444">Erro ao conectar. Tente novamente.</div>';
+    btn.textContent = '✨ Priorizar com I.A. — qual comprar primeiro?';
+    console.warn('[Desejos]', e);
+  }
+  btn.disabled = false;
+}
+
 // ══════ CHAT I.A. ══════
 let chatHistorico = []; // {role:'user'|'assistant', content:''}
 let chatThinking = false;
@@ -1841,12 +2090,7 @@ function chatKeydown(e){
   if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();enviarMensagem();}
 }
 
-// Atualizar badge quando mudar de aba para chat
-const _goTabOrig = goTab;
-function goTab(t){
-  _goTabOrig(t);
-  if(t==='chat') chatAtualizarCtxBadge();
-}
+// chatAtualizarCtxBadge já chamado no goTab principal
 
 // ══════ RESET ══════
 function resetar(){
