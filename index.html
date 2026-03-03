@@ -323,6 +323,18 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .bnic{font-size:1.2rem;transition:transform .2s}.bnil{font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:600;color:var(--tx3);transition:color .2s}
 .bni.ac .bnic{transform:scale(1.1)}.bni.ac .bnil{color:var(--or)}
 
+/* ══ BOTÃO PWA ══ */
+.pwa-btn{display:none;position:fixed;bottom:calc(var(--bn) + var(--sb) + 12px);right:14px;z-index:200;background:var(--or);color:#fff;border:none;border-radius:14px;padding:.75rem 1.1rem;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;align-items:center;gap:.55rem;box-shadow:0 4px 20px rgba(232,93,4,.5);animation:pwa-pulse 2s ease-in-out infinite}
+.pwa-btn.show{display:flex}
+.pwa-btn-ic{font-size:1.1rem}
+.pwa-btn-txt strong{display:block;font-size:.82rem;line-height:1.2}
+.pwa-btn-txt span{font-size:.68rem;opacity:.85}
+@keyframes pwa-pulse{
+  0%,100%{transform:translateY(0);box-shadow:0 4px 20px rgba(232,93,4,.5)}
+  50%{transform:translateY(-5px);box-shadow:0 10px 35px rgba(232,93,4,.7)}
+}
+@media(min-width:769px){.pwa-btn{bottom:18px}}
+
 /* ══ RESPONSIVE ══ */
 @media(max-width:768px){
   .sdbar{display:none}.bnav{display:flex}
@@ -459,9 +471,9 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
             </div>
           </div>
 
-<div style="display:flex;align-items:center">
-            <button class="bsalvar" id="bsalvar">💾 Salvar dados</button>
-            <span class="salvo" id="salvo">✓ Salvo!</span>
+<div style="display:flex;flex-direction:column;align-items:center;gap:.6rem;margin-top:.5rem">
+            <button class="bsalvar" id="bsalvar" style="width:100%;max-width:320px;justify-content:center">💾 Salvar dados</button>
+            <span class="salvo" id="salvo" style="text-align:center">✓ Dados salvos!</span>
           </div>
         </div>
       </div>
@@ -627,9 +639,9 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
             </div>
             <div class="card" id="dc"><div class="clabel">📋 Diagnóstico</div><div id="dct"></div></div>
             <div class="card" id="sc"><div class="clabel" style="color:var(--ok)">💡 Sugestões por Família Lacunar</div><div id="sct"></div></div>
-            <div class="nbar">
-              <div class="nbari"><strong>Quer outras opções?</strong> <span id="nit">Você pode pedir novas sugestões até 3 vezes.</span></div>
-              <button class="bnov" id="bnov">🔄 Novas sugestões</button>
+            <div class="nbar" style="flex-direction:column;text-align:center;gap:.75rem">
+              <div class="nbari"><strong>Quer outras opções?</strong><br><span id="nit" style="font-size:.78rem">Você pode pedir novas sugestões até 3 vezes.</span></div>
+              <button class="bnov" id="bnov" style="width:100%;max-width:300px;padding:.85rem 1.5rem;font-size:.88rem;border-radius:10px">🔄 Novas sugestões</button>
             </div>
             <div class="upsell">
               <div class="upi">
@@ -659,6 +671,15 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 
 <!-- Canvas Stories (oculto) -->
 <canvas id="stories-canvas" style="display:none" width="540" height="960"></canvas>
+
+<!-- Botão PWA piscante -->
+<button class="pwa-btn" id="pwa-btn" onclick="instalarPWA()">
+  <span class="pwa-btn-ic">📲</span>
+  <div class="pwa-btn-txt">
+    <strong>Baixar app</strong>
+    <span>Instalar na tela inicial</span>
+  </div>
+</button>
 
 <script>
 // ══════════════════════════════════════════════
@@ -730,19 +751,29 @@ const MAPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
     }
   }
 
-  // ── Captura prompt de instalação ──
+  // ── Captura prompt de instalação e mostra botão piscante ──
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     window._installPrompt = e;
-    const btn = document.getElementById('btn-install');
-    if(btn) { btn.style.display = 'flex'; }
-    console.log('[PWA] Install prompt capturado — pronto para instalar');
+    // Mostra o botão piscante após o usuário estar logado
+    const show = () => {
+      const btn = document.getElementById('pwa-btn');
+      if(btn) btn.classList.add('show');
+    };
+    // Se já logado, mostra imediatamente; senão aguarda
+    if(document.getElementById('app') && !document.getElementById('app').classList.contains('h')){
+      show();
+    } else {
+      window._showPWABtn = show;
+    }
+    console.log('[PWA] Install prompt capturado');
   });
   window.addEventListener('appinstalled', () => {
     window._installPrompt = null;
-    const btn = document.getElementById('btn-install');
-    if(btn) btn.style.display = 'none';
-    console.log('[PWA] App instalado com sucesso!');
+    const btn = document.getElementById('pwa-btn');
+    if(btn) btn.classList.remove('show');
+    localStorage.setItem('pm_pwa_installed','1');
+    console.log('[PWA] App instalado!');
   });
 })();
 
@@ -908,6 +939,10 @@ async function iniciar(){
   renderRanking();
   verificarHotmart();
   await carregarAnalise(); // Restaura análise anterior automaticamente
+  // Mostrar botão PWA se o prompt já foi capturado antes do login
+  if(window._showPWABtn && !localStorage.getItem('pm_pwa_installed')){
+    window._showPWABtn();
+  }
 }
 function mostrarAuth(){
   document.getElementById('ao').style.display='flex';
@@ -1434,84 +1469,95 @@ function aplicar(){
 // ══════ SALVAR E CARREGAR ANÁLISE PERSISTIDA ══════
 async function salvarAnalise(data,s){
   if(!user)return;
-  // Salva sempre a análise mais recente (upsert por user_id)
-  const payload={
+  // Payload base — colunas que existem na tabela original
+  const payloadBase={
     user_id:user.id,
-    instagram:s.ig||perfil.ig||null,
-    tiktok:s.tk||perfil.tt||null,
     colecao:col,
     orcamento:budget||perfil.budget,
     contextos:ctxs,
     sugestoes:data.sugestoes_por_familia||[],
     diagnostico:data.diagnostico||'',
+    updated_at:new Date().toISOString()
+  };
+  // Colunas extras adicionadas depois — adicionamos ao SQL abaixo
+  // Se não existirem, o Supabase vai ignorar sem erro
+  const payloadExtra={
     fam_base:famBase,
     nao_class:naoClass,
     novas_n:novasN,
-    ja_sug:jaSug,
-    updated_at:new Date().toISOString()
+    ja_sug:jaSug
   };
+  // Tenta com todas as colunas primeiro
+  const payload={...payloadBase,...payloadExtra};
   try{
+    let erro=null;
     if(analiseId){
-      await DB.from('analises').update(payload).eq('id',analiseId);
+      const r=await DB.from('analises').update(payload).eq('id',analiseId);
+      erro=r.error;
     }else{
-      const{data:ins}=await DB.from('analises').insert(payload).select('id').single();
-      if(ins)analiseId=ins.id;
+      const r=await DB.from('analises').insert(payload).select('id').single();
+      erro=r.error;
+      if(!erro&&r.data)analiseId=r.data.id;
     }
-  }catch(_){}
+    // Se falhou (colunas extras não existem), tenta sem elas
+    if(erro){
+      console.warn('[Perfumap] Tentando sem colunas extras:',erro.message);
+      if(analiseId){
+        await DB.from('analises').update(payloadBase).eq('id',analiseId);
+      }else{
+        const r2=await DB.from('analises').insert(payloadBase).select('id').single();
+        if(r2.data)analiseId=r2.data.id;
+      }
+    }
+  }catch(e){console.warn('[Perfumap] Erro ao salvar análise:',e);}
 }
 
 async function carregarAnalise(){
   if(!user)return;
   try{
-    // Busca a análise mais recente do usuário
-    const{data}=await DB.from('analises')
+    const{data,error}=await DB.from('analises')
       .select('*')
       .eq('user_id',user.id)
       .order('updated_at',{ascending:false})
       .limit(1)
       .maybeSingle();
-    if(!data)return;
+    if(error){console.warn('[Perfumap] Erro ao carregar análise:',error.message);return;}
+    if(!data){console.log('[Perfumap] Nenhuma análise salva ainda.');return;}
+    console.log('[Perfumap] Análise carregada, id:',data.id,'diagnóstico:',!!data.diagnostico,'sugestões:',data.sugestoes?.length||0);
     analiseId=data.id;
-    // Restaura estado
     budget=data.orcamento||'';
     ctxs=data.contextos||[];
     famBase=data.fam_base||{};
     naoClass=data.nao_class||[];
     novasN=data.novas_n||0;
     jaSug=data.ja_sug||[];
-    // Restaura seleção do orçamento visualmente
     if(budget){
       const btn=document.querySelector('[data-b="'+budget+'"]');
       if(btn){document.querySelectorAll('#bg .obt').forEach(o=>o.classList.remove('sl'));btn.classList.add('sl');}
     }
-    // Reconstrói o resultado na tela
-    if(data.diagnostico){
-      document.getElementById('rsub').textContent=(data.colecao||[]).length+' perfumes analisados';
-      const frases=data.diagnostico.split(/(?<=[.!?])\s+/).map(f=>f.trim()).filter(f=>f.length>4);
-      const el=document.getElementById('dct');el.innerHTML='';
-      if(frases.length>1){
-        const ul=document.createElement('ul');ul.className='dblist';
-        frases.forEach(f=>{const li=document.createElement('li');li.className='dbli';li.textContent=f;ul.appendChild(li);});
-        el.appendChild(ul);
-      }else{el.textContent=data.diagnostico;}
-    }
-    if(data.fam_base&&Object.values(data.fam_base).some(v=>v>0))renderG(data.fam_base);
-    if(data.nao_class&&data.nao_class.length)renderNC();
-    if(data.sugestoes&&data.sugestoes.length){
-      renderSugestoes(data.sugestoes);
-    }
-    // Mostra resultado
-    if(data.diagnostico||data.sugestoes?.length){
+    const temResultado=!!(data.diagnostico||data.sugestoes?.length);
+    if(temResultado){
+      if(data.diagnostico){
+        document.getElementById('rsub').textContent=(data.colecao||col).length+' perfumes analisados';
+        const frases=data.diagnostico.split(/[.!?]+\s+/).map(f=>f.trim()).filter(f=>f.length>4);
+        const el=document.getElementById('dct');el.innerHTML='';
+        if(frases.length>1){
+          const ul=document.createElement('ul');ul.className='dblist';
+          frases.forEach(f=>{const li=document.createElement('li');li.className='dbli';li.textContent=f;ul.appendChild(li);});
+          el.appendChild(ul);
+        }else if(data.diagnostico){el.textContent=data.diagnostico;}
+      }
+      if(famBase&&Object.values(famBase).some(v=>v>0))renderG(famBase);
+      if(naoClass&&naoClass.length)renderNC();
+      if(data.sugestoes?.length)renderSugestoes(data.sugestoes);
       document.getElementById('rw').classList.add('sh');
-      // Oculta o botão de analisar e o LGPD — resultado já existe
-      
       document.getElementById('ban').style.display='none';
       document.getElementById('btn-refazer').style.display='block';
+      const rest=3-novasN;
+      document.getElementById('bnov').disabled=novasN>=3;
+      document.getElementById('nit').textContent=novasN>=3?'Limite atingido.':`Mais ${rest} vez${rest>1?'es':''} disponíveis.`;
     }
-    const rest=3-(data.novas_n||0);
-    document.getElementById('bnov').disabled=(data.novas_n||0)>=3;
-    document.getElementById('nit').textContent=(data.novas_n||0)>=3?'Limite atingido.':`Mais ${rest} vez${rest>1?'es':''} disponíveis.`;
-  }catch(_){}
+  }catch(e){console.warn('[Perfumap] Erro ao restaurar análise:',e);}
 }
 
 function renderSugestoes(sugs){
@@ -1528,6 +1574,30 @@ function renderSugestoes(sugs){
       g.appendChild(c);
     });
   });
+}
+
+// ══════ PWA INSTALL ══════
+async function instalarPWA(){
+  const btn=document.getElementById('pwa-btn');
+  if(!window._installPrompt){
+    // Fallback: instruções manuais por plataforma
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+    if(isIOS){
+      alert('No Safari: toque em Compartilhar (⬆️) e depois "Adicionar à Tela de Início"');
+    }else{
+      alert('No Chrome: toque no menu (⋮) e depois "Adicionar à tela inicial"');
+    }
+    return;
+  }
+  try{
+    window._installPrompt.prompt();
+    const{outcome}=await window._installPrompt.userChoice;
+    if(outcome==='accepted'){
+      btn.classList.remove('show');
+      localStorage.setItem('pm_pwa_installed','1');
+    }
+    window._installPrompt=null;
+  }catch(e){console.warn('PWA install:',e);}
 }
 
 // ══════ MOSTRAR FORM ANÁLISE (refazer) ══════
