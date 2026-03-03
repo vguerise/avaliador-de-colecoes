@@ -478,6 +478,14 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
             </div>
           </div>
 
+          <div class="lgpd">
+            <input type="checkbox" id="lc-dados">
+            <div class="lgpdt">
+              <strong style="color:var(--tx)">Consentimento LGPD</strong><br>
+              Concordo que minha coleção, dados pessoais e sugestões sejam armazenados por Victor Guerise para personalização do serviço e melhorias. Você pode solicitar exclusão a qualquer momento: <a href="mailto:vguerise@gmail.com">vguerise@gmail.com</a>
+            </div>
+          </div>
+
           <div style="display:flex;align-items:center">
             <button class="bsalvar" id="bsalvar">💾 Salvar dados</button>
             <span class="salvo" id="salvo">✓ Salvo!</span>
@@ -623,11 +631,10 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
           <div style="height:1px;background:var(--bd);margin:1.5rem 0"></div>
 
           <!-- Botão analisar + resultado persistido -->
-          <div class="lgpd" id="lgpd-wrap">
-            <input type="checkbox" id="lc">
-            <div class="lgpdt">
-              <strong style="color:var(--tx)">Consentimento LGPD</strong><br>
-              Concordo que minha coleção e sugestões sejam armazenados por Victor Guerise para melhoria do serviço. Solicite exclusão: <a href="mailto:vguerise@gmail.com">vguerise@gmail.com</a>
+          <div id="lgpd-wrap" style="margin-bottom:.85rem">
+            <div style="font-size:.75rem;color:var(--tx3);display:flex;align-items:center;gap:.5rem">
+              <input type="checkbox" id="lc" style="accent-color:var(--or);cursor:pointer">
+              <span>Confirmo que li e concordo com o <a href="#" onclick="goTab('dados');return false;" style="color:var(--or)">Consentimento LGPD</a> na aba Dados</span>
             </div>
           </div>
           <div class="emsg" id="emsg"></div>
@@ -724,75 +731,55 @@ const MAPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 // ── PWA ──
 (function(){
-  // PWA Manifest — para funcionar como app instalável
-  // IMPORTANTE: para o Chrome/Android mostrar o banner "Instalar app", o site precisa
-  // estar em HTTPS com um manifest.json REAL servido pelo mesmo domínio.
-  // Um manifest em blob: URL funciona tecnicamente mas o Chrome bloqueia o install prompt.
-  // Solução: hospede o perfumap.html no GitHub Pages ou Vercel e coloque o manifest.json
-  // como arquivo separado no repositório. O código abaixo injeta inline para desenvolvimento.
-  const icons = [
-    {
-      src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABmJLR0QA/wD/AP+gvaeTAAAA2UlEQVR4nO3BMQEAAADCoPVP7WsIoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeAMBuAABHgAAAABJRU5ErkJggg==',
-      sizes: '192x192', type: 'image/png', purpose: 'any maskable'
-    }
-  ];
-  const mf={
-    name:'Perfumap',
-    short_name:'Perfumap',
-    description:'Mapeie sua coleção de perfumes com I.A.',
-    start_url:'./',
-    display:'standalone',
-    orientation:'portrait',
-    background_color:'#0E0E0E',
-    theme_color:'#E85D04',
-    icons
-  };
-  const blob = new Blob([JSON.stringify(mf)],{type:'application/manifest+json'});
-  document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+  // ── Aponta o manifest para o arquivo externo ──
+  // Em produção (GitHub Pages / Vercel), usa manifest.json real
+  // Em desenvolvimento local (file://), usa blob como fallback
+  const isLocal = location.protocol === 'file:' || location.hostname === 'localhost';
 
-  // Service Worker — cache básico para uso offline
-  if('serviceWorker' in navigator){
-    const swCode = `
-      const CACHE = 'perfumap-v1';
-      const ASSETS = [self.location.pathname];
-      self.addEventListener('install', e => {
-        e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-        self.skipWaiting();
-      });
-      self.addEventListener('activate', e => {
-        e.waitUntil(caches.keys().then(keys =>
-          Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-        ));
-        self.clients.claim();
-      });
-      self.addEventListener('fetch', e => {
-        if(e.request.method !== 'GET') return;
-        e.respondWith(
-          caches.match(e.request).then(r => r || fetch(e.request).then(res => {
-            const clone = res.clone();
-            caches.open(CACHE).then(c => c.put(e.request, clone));
-            return res;
-          }))
-        );
-      });
-    `;
-    navigator.serviceWorker
-      .register(URL.createObjectURL(new Blob([swCode],{type:'application/javascript'})))
-      .then(reg => console.log('SW registrado:', reg.scope))
-      .catch(e => console.warn('SW falhou (normal em file://):', e));
+  if(!isLocal){
+    // Produção: manifest.json servido pelo mesmo domínio = Chrome mostra "Instalar app"
+    document.getElementById('pwa-manifest').href = './manifest.json';
+  } else {
+    // Local: blob fallback (não mostra install prompt, mas funciona)
+    const mf = {name:'Perfumap',short_name:'Perfumap',start_url:'./',display:'standalone',
+      background_color:'#0E0E0E',theme_color:'#E85D04',icons:[{src:'icon-192.png',sizes:'192x192',type:'image/png'}]};
+    document.getElementById('pwa-manifest').href =
+      URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/manifest+json'}));
   }
 
-  // Install prompt — captura o evento para mostrar botão manual se necessário
+  // ── Service Worker ──
+  if('serviceWorker' in navigator){
+    if(!isLocal){
+      // Produção: usa sw.js externo (funciona corretamente)
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => {
+          console.log('[PWA] SW registrado:', reg.scope);
+          // Verifica atualizações a cada 1h
+          setInterval(() => reg.update(), 3600000);
+        })
+        .catch(e => console.warn('[PWA] SW falhou:', e));
+    } else {
+      // Local: SW inline (limitado mas funcional para testes)
+      const swCode = `const C='pm-local';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('fetch',e=>{});`;
+      navigator.serviceWorker.register(
+        URL.createObjectURL(new Blob([swCode],{type:'application/javascript'}))
+      ).catch(()=>{});
+    }
+  }
+
+  // ── Captura prompt de instalação ──
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     window._installPrompt = e;
-    // Mostra botão "Instalar app" se existir no DOM
     const btn = document.getElementById('btn-install');
-    if(btn) btn.style.display = 'flex';
+    if(btn) { btn.style.display = 'flex'; }
+    console.log('[PWA] Install prompt capturado — pronto para instalar');
   });
   window.addEventListener('appinstalled', () => {
+    window._installPrompt = null;
     const btn = document.getElementById('btn-install');
     if(btn) btn.style.display = 'none';
+    console.log('[PWA] App instalado com sucesso!');
   });
 })();
 
@@ -1009,6 +996,11 @@ async function carregarPerfil(){
       ctxs=perfil.ctxs||[];
       ctxs.forEach(v=>{const el=document.querySelector('.ctx[data-ctx="'+v+'"]');if(el)el.classList.add('sl');});
       budget=perfil.budget||'';
+      // Se já salvou dados antes, LGPD já foi aceito — marca o checkbox
+      if(data.lgpd_ok){
+        const cb=document.getElementById('lc-dados');
+        if(cb)cb.checked=true;
+      }
     }
   }catch(_){}
   document.getElementById('nv-nome').textContent=perfil.nome||user.email.split('@')[0];
@@ -1037,10 +1029,15 @@ async function salvarPerfil(){
   // Atualiza orçamento na análise se estiver selecionado
   budget=perfil.budget||budget;
   document.getElementById('nv-nome').textContent=perfil.nome||user.email.split('@')[0];
+  const lgpdCheck = document.getElementById('lc-dados');
+  if(lgpdCheck && !lgpdCheck.checked){
+    alert('Marque o Consentimento LGPD antes de salvar.');
+    return;
+  }
   try{
     const payload={user_id:user.id,nome:perfil.nome,cidade:perfil.cidade,clima:perfil.clima,
       idade:perfil.idade,budget:perfil.budget,ig:perfil.ig,tt:perfil.tt,
-      ctxs:JSON.stringify(ctxs),updated_at:new Date().toISOString()};
+      ctxs:JSON.stringify(ctxs),lgpd_ok:true,updated_at:new Date().toISOString()};
     if(perfilId){await DB.from('perfis').update(payload).eq('id',perfilId);}
     else{const{data}=await DB.from('perfis').insert(payload).select().single();if(data)perfilId=data.id;}
     const msg=document.getElementById('salvo');
