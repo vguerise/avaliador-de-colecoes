@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Perfumap</title>
-  <meta name="theme-color" content="#111111">
+  <meta name="theme-color" content="#E85D04">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Perfumap">
-  <link rel="manifest" id="pwa-manifest">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%23E85D04'/><text x='256' y='360' text-anchor='middle' font-size='300' font-family='serif'>🗺️</text></svg>">
+  <link rel="manifest" href="./manifest.json" id="pwa-manifest">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="mobile-web-app-capable" content="yes">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -195,16 +195,6 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .rank-breakdown{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--bd);grid-column:1/-1}
 .rbk{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:.38rem .75rem;font-size:.72rem;color:var(--tx2);display:flex;align-items:center;gap:.35rem}
 .rbk span{color:var(--or);font-weight:700}
-/* Conquistas */
-.conq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem}
-.cqi{background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:.82rem .55rem;text-align:center;transition:all .3s;position:relative}
-.cqi.ok{border-color:rgba(232,93,4,.32);background:var(--orm)}
-.cqi-ic{font-size:1.55rem;display:block;margin-bottom:.32rem;filter:grayscale(1) opacity(.3);transition:all .3s}
-.cqi.ok .cqi-ic{filter:none;transform:scale(1.05)}
-.cqi-nm{font-size:.62rem;font-weight:700;color:var(--tx3);line-height:1.3;transition:color .3s}
-.cqi.ok .cqi-nm{color:var(--or)}
-.cqi-chk{position:absolute;top:.3rem;right:.3rem;width:15px;height:15px;background:var(--ok);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:.5rem;color:#fff}
-.cqi.ok .cqi-chk{display:flex}
 /* Stories */
 .stories-wrap{text-align:center}
 .bshare{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;border:none;border-radius:10px;padding:.82rem 1.7rem;font-family:'DM Sans',sans-serif;font-size:.87rem;font-weight:700;cursor:pointer;transition:opacity .2s;display:inline-flex;align-items:center;gap:.5rem}
@@ -469,24 +459,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
             </div>
           </div>
 
-          <div class="card">
-            <div class="clabel">📱 Redes Sociais</div>
-            <p style="font-size:.8rem;color:var(--tx2);margin-bottom:.85rem">Opcional — para análises futuras personalizadas</p>
-            <div class="sgrid">
-              <div class="swrap"><span class="spfx">@</span><input class="inp" type="text" id="ig" placeholder="instagram"></div>
-              <div class="swrap"><span class="spfx">@</span><input class="inp" type="text" id="tt" placeholder="tiktok"></div>
-            </div>
-          </div>
-
-          <div class="lgpd">
-            <input type="checkbox" id="lc-dados">
-            <div class="lgpdt">
-              <strong style="color:var(--tx)">Consentimento LGPD</strong><br>
-              Concordo que minha coleção, dados pessoais e sugestões sejam armazenados por Victor Guerise para personalização do serviço e melhorias. Você pode solicitar exclusão a qualquer momento: <a href="mailto:vguerise@gmail.com">vguerise@gmail.com</a>
-            </div>
-          </div>
-
-          <div style="display:flex;align-items:center">
+<div style="display:flex;align-items:center">
             <button class="bsalvar" id="bsalvar">💾 Salvar dados</button>
             <span class="salvo" id="salvo">✓ Salvo!</span>
           </div>
@@ -613,11 +586,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
             <div class="rank-breakdown" id="rank-breakdown"></div>
           </div>
 
-          <!-- Conquistas -->
-          <div class="card">
-            <div class="clabel">🏆 Conquistas por Família Olfativa</div>
-            <div class="conq-grid" id="conq-grid"></div>
-          </div>
+
 
           <!-- Stories -->
           <div class="card">
@@ -631,14 +600,8 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
           <div style="height:1px;background:var(--bd);margin:1.5rem 0"></div>
 
           <!-- Botão analisar + resultado persistido -->
-          <div id="lgpd-wrap" style="margin-bottom:.85rem">
-            <div style="font-size:.75rem;color:var(--tx3);display:flex;align-items:center;gap:.5rem">
-              <input type="checkbox" id="lc" style="accent-color:var(--or);cursor:pointer">
-              <span>Confirmo que li e concordo com o <a href="#" onclick="goTab('dados');return false;" style="color:var(--or)">Consentimento LGPD</a> na aba Dados</span>
-            </div>
-          </div>
           <div class="emsg" id="emsg"></div>
-          <button class="bpulse" id="ban" disabled>🔍 Analisar Coleção Agora</button>
+          <button class="bpulse" id="ban">🔍 Analisar Coleção Agora</button>
           <button class="bpulse" id="btn-refazer" style="display:none;margin-top:.75rem;background:var(--s2);color:var(--tx2);animation:none;border:1.5px solid var(--bd)" onclick="mostrarFormAnalise()">🔄 Refazer análise</button>
 
           <!-- Resultado -->
@@ -881,7 +844,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     ctxs=el.classList.contains('sl')?[...ctxs,v]:ctxs.filter(c=>c!==v);
   }));
   // Análise
-  document.getElementById('lc').addEventListener('change',function(){document.getElementById('ban').disabled=!this.checked;});
+
   document.getElementById('ban').addEventListener('click',analisar);
   document.getElementById('brst').addEventListener('click',resetar);
   document.getElementById('bnov').addEventListener('click',novas);
@@ -942,7 +905,6 @@ async function iniciar(){
   }
   await Promise.all([carregarCol(),carregarPerfil()]);
   renderNivel();
-  renderConquistas();
   renderRanking();
   verificarHotmart();
   await carregarAnalise(); // Restaura análise anterior automaticamente
@@ -983,7 +945,7 @@ async function carregarPerfil(){
     const{data}=await DB.from('perfis').select('*').eq('user_id',user.id).single();
     if(data){
       perfil={nome:data.nome||'',cidade:data.cidade||'',clima:data.clima||'',
-        idade:data.idade||'',budget:data.budget||'',ig:data.ig||'',tt:data.tt||'',
+        idade:data.idade||'',budget:data.budget||'',
         ctxs:data.ctxs?JSON.parse(data.ctxs):[]};
       perfilId=data.id;
       document.getElementById('pf-nome').value=perfil.nome;
@@ -991,16 +953,10 @@ async function carregarPerfil(){
       document.getElementById('pf-clima').value=perfil.clima;
       document.getElementById('pf-idade').value=perfil.idade;
       document.getElementById('pf-budget').value=perfil.budget;
-      document.getElementById('ig').value=perfil.ig;
-      document.getElementById('tt').value=perfil.tt;
       ctxs=perfil.ctxs||[];
       ctxs.forEach(v=>{const el=document.querySelector('.ctx[data-ctx="'+v+'"]');if(el)el.classList.add('sl');});
       budget=perfil.budget||'';
-      // Se já salvou dados antes, LGPD já foi aceito — marca o checkbox
-      if(data.lgpd_ok){
-        const cb=document.getElementById('lc-dados');
-        if(cb)cb.checked=true;
-      }
+
     }
   }catch(_){}
   document.getElementById('nv-nome').textContent=perfil.nome||user.email.split('@')[0];
@@ -1023,21 +979,13 @@ async function salvarPerfil(){
   perfil.clima=document.getElementById('pf-clima').value;
   perfil.idade=document.getElementById('pf-idade').value;
   perfil.budget=document.getElementById('pf-budget').value;
-  perfil.ig=document.getElementById('ig').value.trim();
-  perfil.tt=document.getElementById('tt').value.trim();
   perfil.ctxs=ctxs;
-  // Atualiza orçamento na análise se estiver selecionado
   budget=perfil.budget||budget;
   document.getElementById('nv-nome').textContent=perfil.nome||user.email.split('@')[0];
-  const lgpdCheck = document.getElementById('lc-dados');
-  if(lgpdCheck && !lgpdCheck.checked){
-    alert('Marque o Consentimento LGPD antes de salvar.');
-    return;
-  }
   try{
     const payload={user_id:user.id,nome:perfil.nome,cidade:perfil.cidade,clima:perfil.clima,
-      idade:perfil.idade,budget:perfil.budget,ig:perfil.ig,tt:perfil.tt,
-      ctxs:JSON.stringify(ctxs),lgpd_ok:true,updated_at:new Date().toISOString()};
+      idade:perfil.idade,budget:perfil.budget,ctxs:JSON.stringify(ctxs),
+      updated_at:new Date().toISOString()};
     if(perfilId){await DB.from('perfis').update(payload).eq('id',perfilId);}
     else{const{data}=await DB.from('perfis').insert(payload).select().single();if(data)perfilId=data.id;}
     const msg=document.getElementById('salvo');
@@ -1153,24 +1101,6 @@ function renderNivel(){
   }
 }
 
-// ══════ CONQUISTAS ══════
-function renderConquistas(){
-  const grid=document.getElementById('conq-grid');
-  grid.innerHTML='';
-  const famsCol=new Set(col.filter(p=>p.familia).map(p=>p.familia));
-  FAMS.forEach(fam=>{
-    const ok=famsCol.has(fam);
-    const div=document.createElement('div');
-    div.className='cqi'+(ok?' ok':'');
-    div.title=ok?`✓ ${fam} desbloqueada!`:`Classifique um perfume ${fam} para desbloquear`;
-    // esc() aqui — fam vem de constante interna, mas boa prática
-    const ic=document.createElement('span');ic.className='cqi-ic';ic.textContent=FICONS[fam]||'🌀';
-    const nm=document.createElement('span');nm.className='cqi-nm';nm.textContent=fam;
-    const chk=document.createElement('span');chk.className='cqi-chk';chk.textContent='✓';
-    div.appendChild(ic);div.appendChild(nm);div.appendChild(chk);
-    grid.appendChild(div);
-  });
-}
 
 // ══════ IMPORTAÇÃO DO MAPA DA COLEÇÃO ══════
 // Para ativar: crie esta function no Supabase do banco antigo (frivahuiffxrxzcjrlom):
@@ -1217,7 +1147,7 @@ async function importarDoMapa(){
       }
     });
     col.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
-    renderCol();renderStats();renderNivel();renderConquistas();deb();
+    renderCol();renderStats();renderNivel();deb();
     const jaExistiam=lista.length-importados;
     st.textContent=`✅ ${importados} perfume${importados!==1?'s':''} importado${importados!==1?'s':''}!`+(jaExistiam>0?` (${jaExistiam} já existiam)`:'');
     st.className='imp-st ok';
@@ -1281,13 +1211,13 @@ function addP(){
   col.push({nome,conc,familia:null});
   col.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
   inp.value='';sel.value='';
-  renderCol();renderStats();renderNivel();renderConquistas();deb();
+  renderCol();renderStats();renderNivel();deb();
 }
 
 function remP(idx){
   const filt=col.filter(p=>!srch||p.nome.toLowerCase().includes(srch));
   col=col.filter(x=>x!==filt[idx]);
-  renderCol();renderStats();renderNivel();renderConquistas();deb();
+  renderCol();renderStats();renderNivel();deb();
 }
 
 function renderCol(){
@@ -1351,7 +1281,7 @@ async function handleFile(f){
     let nv=0;
     enc.forEach(nome=>{if(!col.some(p=>p.nome===nome)){col.push({nome,conc:'',familia:null});nv++;}});
     col.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
-    renderCol();renderStats();renderNivel();renderConquistas();deb();
+    renderCol();renderStats();renderNivel();deb();
     st.textContent=`✅ ${nv} perfumes importados!`;st.className='us ok';
   }catch(_){st.textContent='❌ Não foi possível extrair.';st.className='us er';}
 }
@@ -1387,8 +1317,8 @@ async function novas(){if(novasN>=3)return;novasN++;await buscar(false);}
 
 async function buscar(prim){
   const ct=ctxs.length>0?ctxs.join(', '):'não especificado';
-  const ig=document.getElementById('ig').value.trim();
-  const tk=document.getElementById('tt').value.trim();
+  const ig='';
+  const tk='';
   const nr=jaSug.length>0?'\nNÃO REPITA: '+jaSug.join(', '):'';
   const climaInfo=perfil.clima?'\nClima: '+perfil.clima:'';
   const idadeInfo=perfil.idade?'\nFaixa etária: '+perfil.idade:'';
@@ -1433,7 +1363,7 @@ function renderR(data,social,prim){
   salvarAnalise(data,{ig:perfil.ig,tk:perfil.tt}).catch(()=>{});
   document.getElementById('rw').classList.add('sh');
   // Oculta form de análise, mostra botão "Refazer"
-  document.getElementById('lgpd-wrap').style.display='none';
+  
   document.getElementById('ban').style.display='none';
   document.getElementById('btn-refazer').style.display='block';
   document.querySelector('.tc')?.scrollTo({top:9999,behavior:'smooth'});
@@ -1496,7 +1426,7 @@ function aplicar(){
   });
   naoClass=naoClass.filter(({nome})=>!classExtras[nome]);
   famBase=upd;classExtras={};
-  renderG(upd);renderNC();renderCol();renderStats();renderConquistas();renderRanking();deb();
+  renderG(upd);renderNC();renderCol();renderStats();renderRanking();deb();
   document.getElementById('ncbd').classList.remove('op');
   document.getElementById('nchv').classList.remove('op');
 }
@@ -1574,7 +1504,7 @@ async function carregarAnalise(){
     if(data.diagnostico||data.sugestoes?.length){
       document.getElementById('rw').classList.add('sh');
       // Oculta o botão de analisar e o LGPD — resultado já existe
-      document.getElementById('lgpd-wrap').style.display='none';
+      
       document.getElementById('ban').style.display='none';
       document.getElementById('btn-refazer').style.display='block';
     }
@@ -1602,7 +1532,7 @@ function renderSugestoes(sugs){
 
 // ══════ MOSTRAR FORM ANÁLISE (refazer) ══════
 function mostrarFormAnalise(){
-  document.getElementById('lgpd-wrap').style.display='';
+  
   document.getElementById('lc').checked=false;
   document.getElementById('ban').disabled=true;
   document.getElementById('ban').style.display='';
@@ -1619,7 +1549,7 @@ function resetar(){
   document.getElementById('lc').checked=false;document.getElementById('ban').disabled=true;
   document.getElementById('ban').style.display='';
   document.getElementById('btn-refazer').style.display='none';
-  document.getElementById('lgpd-wrap').style.display='';
+  
   document.getElementById('cc').classList.add('h');
   if(chart){chart.destroy();chart=null;}
   document.getElementById('clg').innerHTML='';
