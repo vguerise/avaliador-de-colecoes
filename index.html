@@ -116,6 +116,8 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 /* ══ ABA 2 — COLEÇÃO ══ */
 .ctls{display:flex;gap:.55rem;margin-top:.85rem;flex-wrap:wrap}
 .iw{display:flex;gap:.5rem;flex:1;min-width:190px}
+.add-perfume-box{background:var(--s1);border:1.5px solid var(--bd);border-radius:14px;padding:1rem 1.1rem;margin-top:.75rem}
+.add-perfume-label{font-size:.73rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
 .bai{background:var(--or);border:none;border-radius:9px;padding:.75rem 1rem;color:#fff;font-size:1.15rem;font-weight:900;cursor:pointer;transition:all .2s;flex-shrink:0;line-height:1}
 .bai:hover{background:var(--ord);transform:scale(1.04)}
 .sw2{position:relative;flex:1;min-width:130px}
@@ -261,7 +263,15 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .fpill{background:var(--or);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.17rem .56rem;border-radius:20px}
 .fhint{font-size:.64rem;color:var(--tx3);margin-left:auto;text-transform:uppercase;letter-spacing:1px}
 .opcg{display:grid;gap:.52rem}
-.oc{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:1rem 1.15rem;display:grid;grid-template-columns:auto 1fr auto;gap:.78rem;align-items:start;cursor:pointer;transition:all .2s}
+.oc{background:var(--s1);border:1.5px solid var(--bd);border-radius:14px;padding:.85rem 1rem;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:.55rem}
+.oc-medal{display:inline-flex;align-items:center;gap:.45rem;padding:.28rem .7rem;border-radius:20px;border:1px solid;width:fit-content}
+.oc-medal-emoji{font-size:.95rem}
+.oc-medal-label{font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.oc-body{flex:1}
+.oc.ouro{border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.06)}
+.oc.prata{border-color:rgba(168,184,200,.35);background:rgba(168,184,200,.05)}
+.oc.bronze{border-color:rgba(200,132,90,.35);background:rgba(200,132,90,.05)}
+.oc.sl2,.oc:hover{border-color:var(--or);background:rgba(232,93,4,.08)}
 .oc:hover{border-color:rgba(232,93,4,.32)}.oc.sl2{border-color:var(--ok);background:rgba(46,204,113,.05)}
 .ocnum{width:28px;height:28px;border-radius:50%;background:var(--s2);border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:800;color:var(--tx2);flex-shrink:0;margin-top:.08rem;transition:all .2s}
 .oc.sl2 .ocnum{background:var(--ok);border-color:var(--ok);color:#fff}
@@ -366,6 +376,8 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .chat-bubble{display:flex;gap:.65rem;align-items:flex-start}
 .chat-bubble.user{flex-direction:row-reverse}
 .chat-av{width:32px;height:32px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.chat-bubble.ai .chat-av{background:rgba(232,93,4,.15);border:1.5px solid rgba(232,93,4,.5);animation:pulse-av 2.5s ease-in-out infinite}
+@keyframes pulse-av{0%,100%{box-shadow:0 0 0 0 rgba(232,93,4,.4)}60%{box-shadow:0 0 0 5px rgba(232,93,4,.0)}}
 .chat-bubble.user .chat-av{background:var(--or)}
 .chat-txt{background:var(--s2);border-radius:14px;padding:.75rem 1rem;font-size:.84rem;line-height:1.55;color:var(--tx);max-width:82%;border:1px solid var(--bd)}
 .chat-bubble.user .chat-txt{background:var(--or);color:#fff;border-color:transparent;border-radius:14px 14px 4px 14px}
@@ -556,19 +568,19 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
         <div class="pg-hdr">
           <h2>Minha Coleção</h2>
           <p>Adicione, organize e gerencie seus perfumes</p>
-          <div class="ctls">
-            <div class="iw">
+          <div class="add-perfume-box">
+            <div class="add-perfume-label">➕ Adicionar perfume</div>
+            <div class="iw" style="margin-bottom:.5rem">
               <input class="inp" type="text" id="pi" placeholder="Nome do perfume e marca...">
-              <select class="inp" id="cs" style="max-width:120px">
-                <option value="">Conc.</option>
-                <option value="Colônia">Colônia</option>
-                <option value="EDT">EDT</option>
-                <option value="EDP">EDP</option>
-                <option value="Parfum">Parfum</option>
-              </select>
               <button class="bai" id="badd">+</button>
             </div>
-            <!-- Busca movida para dentro do dropdown da coleção -->
+            <select class="inp" id="cs" style="width:100%">
+              <option value="">Concentração (opcional)</option>
+              <option value="Colônia">Colônia</option>
+              <option value="EDT">EDT</option>
+              <option value="EDP">EDP</option>
+              <option value="Parfum">Parfum</option>
+            </select>
           </div>
         </div>
         <div class="pg-body">
@@ -1228,7 +1240,13 @@ async function salvarPerfil(){
       msg.classList.remove('sh');
       goTab('colecao');
     },1200);
-  }catch(e){console.warn('Perfil:',e);}
+  }catch(e){
+    console.warn('[Perfil] Erro ao salvar:',e);
+    const msg=document.getElementById('salvo');
+    msg.textContent='⚠️ Erro ao salvar — '+e.message;
+    msg.classList.add('sh');
+    setTimeout(()=>{msg.classList.remove('sh');msg.textContent='✓ Dados salvos!';},3000);
+  }
 }
 
 function cloud(c,t){const el=document.getElementById('cl2');el.className='cl2'+(c?' '+c:'');el.textContent=t;}
@@ -1825,9 +1843,28 @@ function renderSugestoes(sugs){
     d.innerHTML=`<div class="fblkh"><span class="fpill">Lacuna</span>${esc(bloco.familia)}<span class="fhint">escolha 1</span></div><div class="opcg" id="og${bi}"></div>`;
     cont.appendChild(d);
     const g=d.querySelector('#og'+bi);
+    const medalhas=[
+      {cls:'ouro',emoji:'🥇',label:'Ouro',cor:'#F5A623'},
+      {cls:'prata',emoji:'🥈',label:'Prata',cor:'#A8B8C8'},
+      {cls:'bronze',emoji:'🥉',label:'Bronze',cor:'#C8845A'}
+    ];
     (bloco.opcoes||[]).forEach((op,oi)=>{
-      const c=document.createElement('div');c.className='oc';
-      c.innerHTML=`<div class="ocnum">${oi+1}</div><div><div class="ocnm">${esc(op.nome)} <span class="occ">${esc(op.concentracao||'')}</span></div><div class="ocm">${esc(op.por_que)}</div><div class="octg">${op.quando_usar?`<span>${esc(op.quando_usar)}</span>`:''} ${op.faixa_preco?`<span>${esc(op.faixa_preco)}</span>`:''}</div></div><div class="ocr"></div>`;
+      const m=medalhas[oi]||{cls:'',emoji:oi+1,label:'',cor:'var(--or)'};
+      const c=document.createElement('div');
+      c.className='oc oc-'+m.cls;
+      c.innerHTML=`
+        <div class="oc-medal" style="background:${m.cor}22;border-color:${m.cor}55">
+          <span class="oc-medal-emoji">${m.emoji}</span>
+          <span class="oc-medal-label" style="color:${m.cor}">${m.label}</span>
+        </div>
+        <div class="oc-body">
+          <div class="ocnm">${esc(op.nome)} <span class="occ">${esc(op.concentracao||op.familia||'')}</span></div>
+          <div class="ocm">${esc(op.por_que)}</div>
+          <div class="octg">
+            ${op.quando_usar?`<span>${esc(op.quando_usar)}</span>`:''}
+            ${op.faixa_preco?`<span>${esc(op.faixa_preco)}</span>`:''}
+          </div>
+        </div>`;
       c.addEventListener('click',()=>{g.querySelectorAll('.oc').forEach(x=>x.classList.remove('sl2'));c.classList.add('sl2');});
       g.appendChild(c);
     });
