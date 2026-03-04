@@ -713,7 +713,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 
           <!-- Botão analisar + resultado persistido -->
           <div class="emsg" id="emsg"></div>
-          <button class="bpulse" id="ban" onclick="analisarViaChat()">🔍 Analisar Coleção Agora</button>
+          <button class="bpulse" id="ban">🔍 Analisar Coleção Agora</button>
           <button class="bpulse" id="btn-refazer" style="display:none;margin-top:.75rem;background:var(--s2);color:var(--tx2);animation:none;border:1.5px solid var(--bd)" onclick="mostrarFormAnalise()">🔄 Refazer análise</button>
 
           <!-- Resultado -->
@@ -1060,7 +1060,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }));
   // Análise
 
-  // ban onclick ja definido no HTML (analisarViaChat)
+  document.getElementById('ban').addEventListener('click',analisar);
   document.getElementById('brst').addEventListener('click',resetar);
   document.getElementById('bnov').addEventListener('click',novas);
   document.getElementById('nctog').addEventListener('click',()=>{
@@ -1365,12 +1365,12 @@ async function renderRanking(){
     `<div class="rbk">⭐ Bônus nível <span>+${sc.nivelBonus} pts</span></div>`;
   try{
     await atualizarScore();
-    const{count:acima}=await DB.from('rankings').select('*',{count:'exact',head:true}).gt('score',sc.total);
+    const{count:acima}=await DB.from('ranking_global').select('*',{count:'exact',head:true}).gt('score',sc.total);
     const pos=(acima||0)+1;
     const posEl=document.getElementById('rank-pos');
     posEl.textContent='#'+pos;
     posEl.className='rank-pos'+(pos===1?' t1':pos===2?' t2':pos===3?' t3':'');
-    const{count:total}=await DB.from('rankings').select('*',{count:'exact',head:true});
+    const{count:total}=await DB.from('ranking_global').select('*',{count:'exact',head:true});
     const pct=Math.round((1-(pos-1)/(total||1))*100);
     document.getElementById('rank-txt').textContent=`Top ${pct}% — posição ${pos} de ${total||1} colecionadores`;
   }catch(_){
@@ -1974,33 +1974,8 @@ async function priorizarDesejos(){
   const ctxUso = ctxs.length ? `Contextos de uso: ${ctxs.join(', ')}.` : '';
 
   try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `Você é o Perfumista, consultor especialista em fragrâncias. Responda APENAS em JSON válido, sem markdown, sem texto fora do JSON.`,
-        messages: [{
-          role: 'user',
-          content: `Minha coleção atual (${col.length} perfumes): ${nomesColecao}
-
-Lista de desejos:
-${nomesDesejos}
-
-${ctx} ${ctxUso}
-
-Para cada perfume da lista de desejos, avalie se ele:
-- Complementa o que já tenho (adiciona família/estilo novo) → prioridade "top"
-- Adiciona algo interessante mas não urgente → prioridade "medio"  
-- Repete estilos que já tenho → prioridade "baixo"
-
-Responda SOMENTE este JSON (sem mais nada):
-{"prioridades":[{"indice":1,"prioridade":"top","motivo":"motivo em 1 linha"},{"indice":2,...}],"resumo":"resumo geral em 1-2 frases"}`
-        }]
-      })
-    });
-    const data = await resp.json();
+    const userMsgDesejos = 'Minha colecao atual ('+col.length+' perfumes): '+nomesColecao+'\n\nLista de desejos:\n'+nomesDesejos+'\n\n'+ctx+' '+ctxUso+'\n\nPara cada perfume da lista de desejos, avalie se ele:\n- Complementa o que ja tenho (adiciona familia/estilo novo) → prioridade "top"\n- Adiciona algo interessante mas nao urgente → prioridade "medio"\n- Repete estilos que ja tenho → prioridade "baixo"\n\nResponda SOMENTE este JSON (sem mais nada):\n{"prioridades":[{"indice":1,"prioridade":"top","motivo":"motivo em 1 linha"}],"resumo":"resumo geral em 1-2 frases"}';
+    const data = await callClaude('Voce e o Perfumista, consultor especialista em fragrancias. Responda APENAS em JSON valido, sem markdown, sem texto fora do JSON.', userMsgDesejos, 1000);
     const text = data?.content?.[0]?.text || '';
     const clean = text.replace(/\`\`\`json|\`\`\`/g,'').trim();
     const parsed = JSON.parse(clean);
@@ -2145,18 +2120,10 @@ async function enviarMensagem(){
   chatAddMsg('ai','',true);
 
   try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system: chatContexto(),
-        messages: chatHistorico
-      })
-    });
-    const data = await resp.json();
-    const resposta = data?.content?.[0]?.text || 'Desculpe, não consegui processar sua mensagem.';
+    // Pega a ultima msg do usuario para enviar via proxy
+    const ultimaMsg = chatHistorico[chatHistorico.length-1]?.content || '';
+    const data = await callClaude(chatContexto(), ultimaMsg, 1000);
+    const resposta = data?.text || data?.content?.[0]?.text || 'Desculpe, nao consegui processar sua mensagem.';
     chatRemoveTyping();
     chatAddMsg('ai', resposta);
     chatHistorico.push({role:'assistant', content: resposta});
@@ -2191,6 +2158,23 @@ function chatKeydown(e){
 
 // chatAtualizarCtxBadge ja chamado no goTab principal
 
+// Helper: chama Claude via proxy Vercel (evita CORS)
+async function callClaude(system, userMsg, maxTokens){
+  maxTokens = maxTokens || 1000;
+  const res = await fetch('https://operfumista-api.vercel.app/api/perfumista', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      _proxy: true,
+      system,
+      messages: [{ role: 'user', content: userMsg }],
+      max_tokens: maxTokens
+    })
+  });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.json();
+}
+
 // missao semanal
 const MISSAO_KEY = () => 'pm_missao_' + (user?.id||'guest');
 
@@ -2207,15 +2191,9 @@ async function gerarMissao(){
   const faltando=todasFams.filter(f=>!familias.includes(f));
   const nomes=col.slice(0,15).map(p=>p.nome).join(', ');
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,
-        system:'Voce e o Perfumista. Responda SOMENTE em JSON valido sem markdown.',
-        messages:[{role:'user',content:'Coletor tem '+col.length+' perfumes. Familias presentes: '+(familias.join(', ')||'nenhuma')+'. Familias faltando: '+(faltando.join(', ')||'nenhuma')+'. Alguns perfumes: '+nomes+'. Contexto: '+(ctxs.join(', ')||'geral')+'. Crie UMA missao olfativa para esta semana. Responda APENAS: {"titulo":"frase curta de acao","descricao":"1-2 frases explicando por que e util para esta colecao"}'}]
-      })
-    });
-    const data=await resp.json();
-    const txt=(data?.content?.[0]?.text||'{}').replace(/`{3}json|`{3}/g,'').trim();
+    const userMsgMissao='Coletor tem '+col.length+' perfumes. Familias presentes: '+(familias.join(', ')||'nenhuma')+'. Familias faltando: '+(faltando.join(', ')||'nenhuma')+'. Alguns perfumes: '+nomes+'. Contexto: '+(ctxs.join(', ')||'geral')+'. Crie UMA missao olfativa para esta semana. Responda APENAS: {"titulo":"frase curta de acao","descricao":"1-2 frases explicando por que e util para esta colecao"}';
+    const data=await callClaude('Voce e o Perfumista. Responda SOMENTE em JSON valido sem markdown.',userMsgMissao,300);
+    const txt=(data?.text||data?.content?.[0]?.text||'{}').replace(/`{3}json|`{3}/g,'').trim();
     const m=JSON.parse(txt);
     const missao={titulo:m.titulo||'Explore uma nova familia olfativa',descricao:m.descricao||'',ts:Date.now()};
     localStorage.setItem(MISSAO_KEY(),JSON.stringify(missao));
@@ -2245,7 +2223,8 @@ function esconderMissao(){
 
 // ══ PUSH REAL VIA VERCEL ══
 const PUSH_API = 'https://operfumista-api.vercel.app/api/push-subscribe';
-const VAPID_PUBLIC = 'L4SLcxuxrWQ-kszKlj-hs26x25FhEKqL62w46K0SqLzR9ZjTc28VrU-gIjujndcqrY3fG4E9HZKcB82eLtAdtw';
+// VAPID_PUBLIC gerada via web-push CLI — substitua pela chave gerada no terminal
+const VAPID_PUBLIC = 'SUBSTITUIR_PELA_CHAVE_VAPID';
 
 function urlBase64ToUint8Array(base64String){
   const padding='='.repeat((4-base64String.length%4)%4);
@@ -2257,6 +2236,7 @@ function urlBase64ToUint8Array(base64String){
 async function registrarPush(){
   if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
   if(!user)return;
+  if(!VAPID_PUBLIC||VAPID_PUBLIC==='SUBSTITUIR_PELA_CHAVE_VAPID')return; // VAPID não configurada
   try{
     const perm=await Notification.requestPermission();
     if(perm!=='granted')return;
