@@ -92,7 +92,7 @@ h1,h2,h3{font-family:'Montserrat',sans-serif;line-height:1.2}
 /* ── MAIN ── */
 .mn{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0;height:100dvh}
 .tc{flex:1;overflow-y:auto;overflow-x:hidden;height:0}
-.tpane{display:none;flex-direction:column;min-height:100%}.tpane.ac{display:flex;flex-direction:column}
+.tpane{display:none;flex-direction:column}.tpane.ac{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;min-height:100%}
 .pg-hdr{padding:1.5rem 2rem .9rem;border-bottom:1px solid var(--bd);flex-shrink:0}
 .pg-hdr h2{font-size:1.2rem;font-weight:900;margin-bottom:.12rem}
 .pg-hdr p{font-size:.79rem;color:var(--tx2)}
@@ -779,7 +779,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 
       <!-- ══ ABA 4: DESEJOS ══ -->
       <div class="tpane" id="tab-desejos">
-        <div class="pg-body" style="padding-top:1.5rem;flex:1;align-self:flex-start;width:100%">
+        <div class="pg-body" style="padding-top:1.5rem;width:100%">
           <h2 style="font-size:1.2rem;font-weight:900;margin-bottom:.18rem">Lista de Desejos</h2>
           <p style="font-size:.79rem;color:var(--tx2);margin-bottom:1.1rem">Seus próximos perfumes, priorizados pela I.A.</p>
           <!-- Input de desejo -->
@@ -1909,7 +1909,7 @@ function renderSugestoes(sugs){
     (bloco.opcoes||[]).forEach((op,oi)=>{
       const m=medalhas[oi]||{cls:'',emoji:oi+1,label:'',cor:'var(--or)'};
       const c=document.createElement('div');
-      c.className='oc oc-'+m.cls;
+      c.className='oc '+m.cls;
       c.innerHTML=`
         <div class="oc-medal" style="background:${m.cor}22;border-color:${m.cor}55">
           <span class="oc-medal-emoji">${m.emoji}</span>
