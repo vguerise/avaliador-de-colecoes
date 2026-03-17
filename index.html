@@ -467,7 +467,11 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
       <input class="afinp" type="password" id="aupw" placeholder="••••••••" autocomplete="current-password">
     </div>
     <button class="bauth" id="bauth">Entrar</button>
-    <div class="atog"><span id="atxt">Não tem conta?</span><a id="alink"> Criar conta gratuita</a></div>
+    <div class="atog"><a id="alink-reset" onclick="enviarResetSenha()">Esqueci minha senha</a></div>
+    <div class="atog" style="margin-top:.5rem;padding-top:.75rem;border-top:1px solid var(--bd)">
+      <span style="color:var(--tx3);font-size:.8rem">Não tem acesso?</span>
+      <a id="alink-curso" href="https://vguerise.github.io/pv-curso-pratico-da-perfumaria" target="_blank"> Quero ter acesso →</a>
+    </div>
   </div>
 </div>
 
@@ -1026,20 +1030,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 
   // Auth
-  let modoAuth='login';
+  // modoAuth removido — só login
   document.getElementById('bauth').addEventListener('click',fazerAuth);
   ['aue','aupw','aun'].forEach(id=>document.getElementById(id)?.addEventListener('keypress',e=>{if(e.key==='Enter')fazerAuth();}));
-  document.getElementById('alink').addEventListener('click',()=>{
-    modoAuth=modoAuth==='login'?'cadastro':'login';
-    const L=modoAuth==='login';
-    document.getElementById('auh').textContent=L?'Bem-vindo de volta':'Criar conta gratuita';
-    document.getElementById('aus').textContent=L?'Acesse sua coleção salva na nuvem':'Salve sua coleção na nuvem';
-    document.getElementById('atxt').textContent=L?'Não tem conta?':'Já tem conta?';
-    document.getElementById('alink').textContent=L?' Criar conta gratuita':' Entrar';
-    document.getElementById('bauth').textContent=L?'Entrar':'Criar conta';
-    document.getElementById('anf').classList.toggle('h',L);
-    document.getElementById('amsg').className='amsg';
-  });
+    // Sem toggle de cadastro — acesso apenas via curso;
 
   // Tabs
   document.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click',()=>goTab(el.dataset.tab)));
@@ -1099,6 +1093,33 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 // ══════ AUTH ══════
+async function enviarResetSenha(){
+  const email=document.getElementById('aue').value.trim();
+  const msg=document.getElementById('amsg');
+  if(!email){
+    msg.textContent='⚠️ Digite seu email primeiro.';
+    msg.style.color='var(--wn)';
+    msg.classList.add('sh');
+    setTimeout(()=>msg.classList.remove('sh'),3000);
+    return;
+  }
+  try{
+    const{error}=await DB.auth.resetPasswordForEmail(email,{
+      redirectTo:'https://vguerise.github.io/perfumap/'
+    });
+    if(error)throw error;
+    msg.textContent='✓ Email de recuperação enviado! Verifique sua caixa de entrada.';
+    msg.style.color='var(--ok)';
+    msg.classList.add('sh');
+    setTimeout(()=>msg.classList.remove('sh'),6000);
+  }catch(e){
+    msg.textContent='⚠️ Erro: '+e.message;
+    msg.style.color='var(--er)';
+    msg.classList.add('sh');
+    setTimeout(()=>msg.classList.remove('sh'),4000);
+  }
+}
+
 async function fazerAuth(){
   const email=document.getElementById('aue').value.trim();
   const senha=document.getElementById('aupw').value;
@@ -1106,16 +1127,8 @@ async function fazerAuth(){
   if(!email||!senha){amsg('Preencha email e senha.','e');return;}
   btn.disabled=true;btn.textContent='Aguarde...';
   try{
-    const isLogin=document.getElementById('auh').textContent.includes('volta');
-    if(isLogin){
-      const{error}=await DB.auth.signInWithPassword({email,password:senha});
-      if(error)throw error;
-    }else{
-      const nome=document.getElementById('aun').value.trim();
-      const{error}=await DB.auth.signUp({email,password:senha,options:{data:{nome}}});
-      if(error)throw error;
-      amsg('Conta criada! Verifique seu email.','o');
-    }
+    const{error}=await DB.auth.signInWithPassword({email,password:senha});
+    if(error)throw error;
   }catch(e){
     const m={'Invalid login credentials':'Email ou senha incorretos.','User already registered':'Email já cadastrado.','Email not confirmed':'Confirme seu email primeiro.'};
     amsg(m[e.message]||e.message,'e');
