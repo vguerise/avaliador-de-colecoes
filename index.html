@@ -92,11 +92,11 @@ h1,h2,h3{font-family:'Montserrat',sans-serif;line-height:1.2}
 /* ── MAIN ── */
 .mn{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0;height:100dvh}
 .tc{flex:1;overflow-y:auto;overflow-x:hidden;height:0}
-.tpane{display:none}.tpane.ac{display:block}
-.pg-hdr{padding:1.5rem 2rem .9rem;border-bottom:1px solid var(--bd)}
+.tpane{display:none;flex-direction:column;min-height:100%}.tpane.ac{display:flex;flex-direction:column}
+.pg-hdr{padding:1.5rem 2rem .9rem;border-bottom:1px solid var(--bd);flex-shrink:0}
 .pg-hdr h2{font-size:1.2rem;font-weight:900;margin-bottom:.12rem}
 .pg-hdr p{font-size:.79rem;color:var(--tx2)}
-.pg-body{padding:1.2rem 2rem 3rem}
+.pg-body{padding:1.2rem 2rem 3rem;flex:1}
 
 /* ══ INPUTS GLOBAIS ══ */
 .inp{background:var(--s2);border:1.5px solid var(--bd);border-radius:9px;padding:.75rem .95rem;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--tx);outline:none;transition:border-color .2s;width:100%}
@@ -429,6 +429,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 /* ══ RESPONSIVE ══ */
 @media(max-width:768px){
   .sdbar{display:none}.bnav{display:flex}
+  .tpane.ac{min-height:unset}
   .tc{padding-bottom:calc(var(--bn) + var(--sb))}
   .pg-body,.al2{padding-left:1.1rem;padding-right:1.1rem}
   .pg-hdr{padding:1.1rem 1.1rem .72rem}
@@ -778,7 +779,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 
       <!-- ══ ABA 4: DESEJOS ══ -->
       <div class="tpane" id="tab-desejos">
-        <div class="pg-body" style="padding-top:1.5rem">
+        <div class="pg-body" style="padding-top:1.5rem;flex:1;align-self:flex-start;width:100%">
           <h2 style="font-size:1.2rem;font-weight:900;margin-bottom:.18rem">Lista de Desejos</h2>
           <p style="font-size:.79rem;color:var(--tx2);margin-bottom:1.1rem">Seus próximos perfumes, priorizados pela I.A.</p>
           <!-- Input de desejo -->
