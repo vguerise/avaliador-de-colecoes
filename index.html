@@ -90,8 +90,8 @@ h1,h2,h3{font-family:'Montserrat',sans-serif;line-height:1.2}
 .sdver{font-size:.64rem;color:var(--tx3);text-align:center;padding:.75rem;border-top:1px solid var(--bd)}
 
 /* ── MAIN ── */
-.mn{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0}
-.tc{flex:1;overflow-y:auto;overflow-x:hidden}
+.mn{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0;height:100dvh}
+.tc{flex:1;overflow-y:auto;overflow-x:hidden;height:0}
 .tpane{display:none}.tpane.ac{display:block}
 .pg-hdr{padding:1.5rem 2rem .9rem;border-bottom:1px solid var(--bd)}
 .pg-hdr h2{font-size:1.2rem;font-weight:900;margin-bottom:.12rem}
@@ -163,6 +163,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .pn{font-size:.87rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pmeta{display:flex;gap:.4rem;margin-top:.18rem;flex-wrap:wrap}
 .ppill{font-size:.63rem;font-weight:700;padding:.12rem .5rem;border-radius:20px;background:var(--s2);color:var(--tx3);border:1px solid var(--bd)}
+.ppill.pf-na{background:rgba(255,255,255,.04);color:var(--tx3);font-style:italic;font-weight:400;border-color:rgba(255,255,255,.06)}
 .ppill.pf{color:var(--fc,var(--tx2));border-color:var(--fc,var(--bd))}
 .brm{background:none;border:none;color:var(--tx3);cursor:pointer;padding:.26rem;border-radius:6px;transition:all .2s;font-size:.85rem;line-height:1}
 .brm:hover{background:rgba(231,76,60,.15);color:var(--er)}
@@ -1177,21 +1178,63 @@ function goTab(t){
 // ══════ SUPABASE ══════
 async function carregarCol(){
   cloud('sg','☁️ Carregando...');
+  // 1. Tenta localStorage primeiro (instantâneo, offline-first)
+  const lsKey='pm_col_'+(user?.id||'guest');
+  try{
+    const raw=localStorage.getItem(lsKey);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      if(parsed?.length){col=parsed;renderCol();renderStats();cloud('sy','☁️ Sincronizado');}
+    }
+  }catch(_){}
+  // 2. Sempre busca Supabase em background para sincronizar
   try{
     const{data}=await DB.from('colecoes').select('*').eq('user_id',user.id).single();
-    if(data?.perfumes){col=data.perfumes;dbId=data.id;}
+    if(data?.perfumes){
+      dbId=data.id;
+      // Se localStorage estava vazio, usa dados da nuvem
+      if(!col.length){
+        col=data.perfumes;
+        try{localStorage.setItem(lsKey,JSON.stringify(col));}catch(_){}
+        renderCol();renderStats();
+      }
+      // Se nuvem tem mais perfumes que local, nuvem ganha
+      else if(data.perfumes.length>col.length){
+        col=data.perfumes;
+        try{localStorage.setItem(lsKey,JSON.stringify(col));}catch(_){}
+        renderCol();renderStats();
+      }
+    }
   }catch(_){}
-  renderCol();renderStats();
   cloud('sy','☁️ Sincronizado');
 }
 
 async function carregarPerfil(){
+  const lsPerfilKey='pm_perfil_'+(user?.id||'guest');
+  // 1. Tenta localStorage primeiro
+  try{
+    const raw=localStorage.getItem(lsPerfilKey);
+    if(raw){
+      const p=JSON.parse(raw);
+      perfil=p;
+      perfilId=p._id||null;
+      document.getElementById('pf-nome').value=p.nome||'';
+      document.getElementById('pf-cidade').value=p.cidade||'';
+      document.getElementById('pf-clima').value=p.clima||'';
+      document.getElementById('pf-idade').value=p.idade||'';
+      document.getElementById('pf-budget').value=p.budget||'';
+      ctxs=p.ctxs||[];
+      ctxs.forEach(v=>{const el=document.querySelector('.ctx[data-ctx="'+v+'"]');if(el)el.classList.add('sl');});
+      budget=p.budget||'';
+    }
+  }catch(_){}
+  // 2. Busca Supabase em background (fonte da verdade)
   try{
     const{data}=await DB.from('perfis').select('*').eq('user_id',user.id).single();
     if(data){
       perfil={nome:data.nome||'',cidade:data.cidade||'',clima:data.clima||'',
         idade:data.idade||'',budget:data.budget||'',
-        ctxs:data.ctxs?JSON.parse(data.ctxs):[]};
+        ctxs:data.ctxs?JSON.parse(data.ctxs):[],_id:data.id};
       perfilId=data.id;
       document.getElementById('pf-nome').value=perfil.nome;
       document.getElementById('pf-cidade').value=perfil.cidade;
@@ -1201,7 +1244,8 @@ async function carregarPerfil(){
       ctxs=perfil.ctxs||[];
       ctxs.forEach(v=>{const el=document.querySelector('.ctx[data-ctx="'+v+'"]');if(el)el.classList.add('sl');});
       budget=perfil.budget||'';
-
+      // Atualiza localStorage com dados da nuvem
+      try{localStorage.setItem(lsPerfilKey,JSON.stringify(perfil));}catch(_){}
     }
   }catch(_){}
   document.getElementById('nv-nome').textContent=perfil.nome||'Colecionador';
@@ -1209,6 +1253,9 @@ async function carregarPerfil(){
 
 async function salvarCol(){
   if(!user)return;
+  // Salva no localStorage imediatamente (offline-first)
+  const lsKey='pm_col_'+(user?.id||'guest');
+  try{localStorage.setItem(lsKey,JSON.stringify(col));}catch(_){}
   cloud('sg','☁️ Salvando...');
   try{
     if(dbId){await DB.from('colecoes').update({perfumes:col,updated_at:new Date().toISOString()}).eq('id',dbId);}
@@ -1247,6 +1294,9 @@ async function salvarPerfil(){
     msg.classList.add('sh');
     setTimeout(()=>{msg.classList.remove('sh');msg.textContent='✓ Dados salvos!';},3000);
   }
+  // Sempre salva no localStorage independente do Supabase
+  const lsPerfilKey='pm_perfil_'+(user?.id||'guest');
+  try{localStorage.setItem(lsPerfilKey,JSON.stringify({...perfil,_id:perfilId}));}catch(_){}
 }
 
 function cloud(c,t){const el=document.getElementById('cl2');el.className='cl2'+(c?' '+c:'');el.textContent=t;}
@@ -1565,6 +1615,10 @@ function renderCol(){
       if(p.familia){
         const fp=document.createElement('span');fp.className='ppill pf';fp.textContent=p.familia;
         const cor=FCOR[p.familia];if(cor)fp.style.setProperty('--fc',cor);
+        meta.appendChild(fp);
+      } else {
+        const fp=document.createElement('span');fp.className='ppill pf-na';
+        fp.textContent='Classificação não disponível';
         meta.appendChild(fp);
       }
       info.appendChild(meta);
