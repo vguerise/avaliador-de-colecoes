@@ -1,7 +1,7 @@
-// Service Worker do Perfumap — v8
+// Service Worker do Perfumap — v9
 // Suporta: cache offline + Web Push
 
-const CACHE_NAME = 'perfumap-v8';
+const CACHE_NAME = 'perfumap-v9';
 const BASE = '/perfumap';
 
 // Arquivos para cache offline
